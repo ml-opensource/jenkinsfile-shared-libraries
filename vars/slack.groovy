@@ -171,7 +171,9 @@ def wrap(command, errorMessage) {
 }
 
 def jobName() {
-	return "${env.JOB_NAME}"
+	def job = "${env.JOB_NAME}"
+	def splits = job.split("/")
+	return splits[1] + "/" + splits[2]
 }
 
 def PRMessage() {
