@@ -78,7 +78,7 @@ def getArtifacts() {
     return summary
 }
 
-def getTestSummary = { ->
+def getTestSummary() {
     def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
     def summary = ""
 
@@ -96,7 +96,7 @@ def getTestSummary = { ->
     return summary
 }
 
-def getCoverageSummary = { ->
+def getCoverageSummary() {
     def coverageAction = currentBuild.rawBuild.getAction(CoberturaBuildAction.class)
     def summary = ""
 
@@ -113,7 +113,7 @@ def getCoverageSummary = { ->
     return summary
 }
 
-def getFailedTests = { ->
+def getFailedTests() {
     def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
     if (testResultAction != null) {
     	def failedTestsString = ""
