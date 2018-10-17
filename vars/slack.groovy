@@ -171,9 +171,7 @@ def wrap(command, errorMessage) {
 }
 
 def jobName() {
-	def job = "${env.JOB_NAME}"
-	def jobName = "${jobName}"
-	return jobName
+	return "${env.JOB_NAME}"
 }
 
 def PRMessage() {
