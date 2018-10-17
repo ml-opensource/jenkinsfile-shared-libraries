@@ -164,7 +164,7 @@ def jobName() {
 	def job = "${env.JOB_NAME}"
 	def splits = job.split("/")
 	def jobName = splits[1]
-	if (isPR) {
+	if (isPR()) {
 		jobName += "/${env.CHANGE_BRANCH}/" + splits[2] 
 	} else {
 		jobName += "/" + splits[2]
