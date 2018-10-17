@@ -24,11 +24,11 @@ def getLastSuccessfulCommit() {
 @NonCPS
 def commitHashForBuild( build ) {
   def scmAction = build?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
-  if (scmAction instanceof org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision) {
-  	return scmAction?.revision?.pullHash
+  def revision = scmAction?.revision
+  if (revision instanceof org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision) {
+  	return revision?.pullHash
   }
-  echo scmAction
-  return scmAction?.revision?.hash
+  return revision?.hash
 }
 
 def getRepoUrl() {
@@ -239,5 +239,12 @@ def testMessage() {
 		slackSend color: 'warning', channel: slackChannel, message: slackSuccessHeader + slackTestSummary
 		slackSend color: 'warning', channel: slackChannel, message: failedTest
 	}
+}
 
+def echo() {
+	def jobName = jobName()
+	def slackBuildNode = "Built with _*${env.NODE_NAME}*_\n"
+	def slackHeader = slackHeader()
+	def slackSuccessHeader = "${slackHeader}${slackBuildNode}"
+	slackSend color: 'good', channel: slackChannel, message: slackSuccessHeader
 }
