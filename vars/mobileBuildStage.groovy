@@ -3,6 +3,5 @@ def call(Closure body) {
 		body()
 		archiveArtifacts '**/archive/*.ipa, **/output/**/*.apk'
 		storeFuzzArtifacts()
-		slack.buildMessage()
 	}
 }
