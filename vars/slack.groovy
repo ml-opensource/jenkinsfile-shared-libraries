@@ -190,7 +190,8 @@ def isPR() {
 }
 
 def slackHeader() {
-	def slackHeader = "${jobName()} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
+	def jobName = jobName()
+	def slackHeader = "${jobName} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
 	def currentCommitLink = getCurrentCommitLink()
 	slackHeader += "Branch _*${env.BRANCH_NAME}*_ ${currentCommitLink}\n"
 	if (isPR()) {
@@ -206,12 +207,13 @@ def sendSlackError(Exception e, String message) {
 }
 
 def buildMessage() {
+	def jobName = jobName()
 	def slackBuildNode = "Built with _*${env.NODE_NAME}*_\n"
 	def slackHeader = slackHeader()
 	def slackSuccessHeader = "${slackHeader}${slackBuildNode}"
 	def slackArtifacts = getArtifacts(source)
 	slackSend color: 'good', channel: slackChannel, message: slackSuccessHeader + slackArtifacts
-	def commitLogHeader = "${jobName()} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
+	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
 	slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
 }
 
