@@ -170,10 +170,32 @@ def wrap(command, errorMessage) {
 	}
 }
 
+def jobName() {
+	def job = "${env.JOB_NAME}"
+	def jobName = "${jobName}"
+	return jobName
+}
+
+def PRMessage() {
+	def PRTitle = "${env.CHANGE_TITLE}"
+	def PRTarget = "${env.CHANGE_TARGET}"
+	def PRAuthor = "${env.CHANGE_AUTHOR_DISPLAY_NAME}"
+	def PRURL = "${env.CHANGE_URL}"
+	return "${PRTitle} - ${PRTarget} by ${PRAuthor} (<${PRURL}|Open>)"
+}
+
+def isPR() {
+	def PRTitle = "${env.CHANGE_TITLE}"
+	return !PRTitle.trim().equals("")
+}
+
 def slackHeader() {
-	def slackHeader = "${jobName} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
+	def slackHeader = "${jobName()} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
 	def currentCommitLink = getCurrentCommitLink()
 	slackHeader += "Branch _*${env.BRANCH_NAME}*_ ${currentCommitLink}\n"
+	if (isPR()) {
+		slackHeader += PRMessage()
+	}
 	return slackHeader
 }
 
@@ -189,7 +211,7 @@ def buildMessage() {
 	def slackSuccessHeader = "${slackHeader}${slackBuildNode}"
 	def slackArtifacts = getArtifacts(source)
 	slackSend color: 'good', channel: slackChannel, message: slackSuccessHeader + slackArtifacts
-	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
+	def commitLogHeader = "${jobName()} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
 	slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
 }
 
