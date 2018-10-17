@@ -173,7 +173,7 @@ def jobName() {
 def PRMessage() {
 	def PRTitle = "${env.CHANGE_TITLE}"
 	def PRTarget = "${env.CHANGE_TARGET}"
-	def PRAuthor = "${env.CHANGE_AUTHOR_DISPLAY_NAME}"
+	def PRAuthor = "${env.CHANGE_AUTHOR}"
 	def PRURL = "${env.CHANGE_URL}"
 	return "${PRTitle} - ${PRTarget} by ${PRAuthor} (<${PRURL}|Open>)\n"
 }
