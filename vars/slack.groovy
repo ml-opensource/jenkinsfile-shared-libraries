@@ -13,7 +13,7 @@ import hudson.plugins.cobertura.targets.CoverageMetric
 def sendSlackError(Exception e, String message) {
 }
 
-def sh(command) {
+def qsh(command) {
 	try {
 		sh command	
 	} catch (Exception e) {
