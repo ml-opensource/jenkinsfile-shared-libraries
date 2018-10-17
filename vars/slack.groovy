@@ -144,8 +144,7 @@ def qsh(command) {
 	try {
 		sh command	
 	} catch (Exception e) {
-		def slackBuildNode = "Built with _*${env.NODE_NAME}*_\n"
-		sendSlackError(e, "${slackBuildNode}Failed to ${command}")
+		sendSlackError(e, "Failed to ${command} in ${env.STAGE}")
 		throw e
 	}
 }
@@ -154,8 +153,7 @@ def wrap(command, errorMessage) {
 	try {
 		script command	
 	} catch (Exception e) {
-		def slackBuildNode = "Built with _*${env.NODE_NAME}*_\n"
-		sendSlackError(e, "${slackBuildNode}${errorMessage}")
+		sendSlackError(e, "${errorMessage} in ${env.STAGE}")
 		throw e
 	}
 }
@@ -173,7 +171,7 @@ def PRMessage() {
 	def PRAuthor = "${env.CHANGE_AUTHOR}"
 	def PRSource = "${env.CHANGE_BRANCH}"
 	def PRURL = "${env.CHANGE_URL}"
-	return "${PRTitle} - ${PRSource} -> ${PRTarget} by ${PRAuthor} (<${PRURL}|Open>)\n"
+	return "PR: _*${PRTitle}_* - ${PRSource} -> ${PRTarget} by ${PRAuthor} (<${PRURL}|Open>)\n"
 }
 
 def isPR() {
@@ -185,9 +183,10 @@ def slackHeader() {
 	def jobName = jobName()
 	def slackHeader = "${jobName} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
 	def currentCommitLink = getCurrentCommitLink()
-	slackHeader += "Branch _*${env.BRANCH_NAME}*_ ${currentCommitLink}\n"
 	if (isPR()) {
 		slackHeader += PRMessage()
+	} else {
+		slackHeader += "Branch _*${env.BRANCH_NAME}*_ ${currentCommitLink}\n"
 	}
 	slackHeader += "Built with _*${env.NODE_NAME}*_\n"
 	return slackHeader
@@ -209,7 +208,6 @@ def buildMessage() {
 }
 
 def testMessage() {
-	def slackBuildNode = "Built with _*${env.NODE_NAME}*_\n"
 	def slackHeader = slackHeader()
 	def failedTest = getFailedTests()
 	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
