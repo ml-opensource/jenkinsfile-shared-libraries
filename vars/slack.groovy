@@ -189,22 +189,21 @@ def slackHeader() {
 	if (isPR()) {
 		slackHeader += PRMessage()
 	}
+	slackHeader += "Built with _*${env.NODE_NAME}*_\n"
 	return slackHeader
 }
 
 def sendSlackError(Exception e, String message) {
 	if (!(e instanceof InterruptedException)) {
-		slackSend color: 'danger', channel: slackChannel, message:slackHeader() +  + message.replace("@here", "")
+		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message.replace("@here", "")
 	}
 }
 
 def buildMessage() {
 	def jobName = jobName()
-	def slackBuildNode = "Built with _*${env.NODE_NAME}*_\n"
 	def slackHeader = slackHeader()
-	def slackSuccessHeader = "${slackHeader}${slackBuildNode}"
 	def slackArtifacts = getArtifacts(source)
-	slackSend color: 'good', channel: slackChannel, message: slackSuccessHeader + slackArtifacts
+	slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
 	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
 	slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
 }
@@ -212,27 +211,23 @@ def buildMessage() {
 def testMessage() {
 	def slackBuildNode = "Built with _*${env.NODE_NAME}*_\n"
 	def slackHeader = slackHeader()
-	def slackSuccessHeader = "${slackHeader}${slackBuildNode}"
 	def failedTest = getFailedTests()
 	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
 	def coverageSummary = "_*Code Coverage*_\n" + getCoverageSummary() + "\n"
 	def slackTestSummary = testSummary + coverageSummary
 	if (failedTest == null) {
 		if (testSummary.contains("No tests found")) {
-			slackSend color: 'warning', channel: slackChannel, message: slackSuccessHeader + slackTestSummary 
+			slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary 
 		} else {
-			slackSend color: 'good', channel: slackChannel, message: slackSuccessHeader + slackTestSummary 
+			slackSend color: 'good', channel: slackChannel, message: slackHeader + slackTestSummary 
 		}
 	} else {
-		slackSend color: 'warning', channel: slackChannel, message: slackSuccessHeader + slackTestSummary
+		slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
 		slackSend color: 'warning', channel: slackChannel, message: failedTest
 	}
 }
 
 def echo() {
-	def jobName = jobName()
-	def slackBuildNode = "Built with _*${env.NODE_NAME}*_\n"
 	def slackHeader = slackHeader()
-	def slackSuccessHeader = "${slackHeader}${slackBuildNode}"
-	slackSend color: 'good', channel: slackChannel, message: slackSuccessHeader
+	slackSend color: 'good', channel: slackChannel, message: slackHeader
 }
