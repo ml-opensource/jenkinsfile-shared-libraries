@@ -10,7 +10,7 @@ import com.fuzz.artifactstore.ArtifactStore
 import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
 
-def slackChannel = "jenkins-notifications"
+def slackChannel = "jenkins_notifications"
 
 def getLastSuccessfulCommit() {
   def lastSuccessfulHash = null
