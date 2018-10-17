@@ -163,12 +163,7 @@ def wrap(command, errorMessage) {
 def jobName() {
 	def job = "${env.JOB_NAME}"
 	def splits = job.split("/")
-	def jobName = splits[1]
-	if (isPR()) {
-		jobName += "/${env.CHANGE_BRANCH}/" + splits[2] 
-	} else {
-		jobName += "/" + splits[2]
-	}
+	def jobName = splits[1] + "/" + splits[2]
 	return jobName
 }
 
@@ -176,8 +171,9 @@ def PRMessage() {
 	def PRTitle = "${env.CHANGE_TITLE}"
 	def PRTarget = "${env.CHANGE_TARGET}"
 	def PRAuthor = "${env.CHANGE_AUTHOR}"
+	def PRSource = "${env.CHANGE_BRANCH}"
 	def PRURL = "${env.CHANGE_URL}"
-	return "${PRTitle} - ${PRTarget} by ${PRAuthor} (<${PRURL}|Open>)\n"
+	return "${PRTitle} - ${PRSource} -> ${PRTarget} by ${PRAuthor} (<${PRURL}|Open>)\n"
 }
 
 def isPR() {
