@@ -171,7 +171,7 @@ def PRMessage() {
 	def PRAuthor = "${env.CHANGE_AUTHOR}"
 	def PRSource = "${env.CHANGE_BRANCH}"
 	def PRURL = "${env.CHANGE_URL}"
-	return "_*${env.BRANCH_NAME}:*_ ${PRTitle} - ${PRSource} -> ${PRTarget} by ${PRAuthor} (<${PRURL}|Open>)\n"
+	return "_*${env.BRANCH_NAME}:*_ ${PRTitle} - _${PRSource} -> ${PRTarget}_ by ${PRAuthor} (<${PRURL}|Open>)\n"
 }
 
 def isPR() {
