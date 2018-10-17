@@ -27,6 +27,7 @@ def commitHashForBuild( build ) {
   if (scmAction instanceof org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision) {
   	return scmAction?.revision?.pullHash
   }
+  echo scmAction
   return scmAction?.revision?.hash
 }
 
