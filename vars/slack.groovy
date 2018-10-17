@@ -33,15 +33,13 @@ def commitHashForBuild( build ) {
 
 def getRepoUrl() {
 	def gituri = scm.repositories[0].uris[0].toASCIIString()
-    return gituri.replace(".git","").replace("git@","")
+    return gituri.replace(".git","")
 }
 
 def getCurrentCommitLink() {
     def currentCommit = commitHashForBuild( currentBuild.rawBuild )
     def repoURL = getRepoUrl()
-    def parts = repoURL.split(":")
-    def baseURL = "https://" + parts[0] + "/"
-    def commitURL = baseURL + parts[1] + "/commit/"
+    def commitURL = repoURL + "/commit/"
     def shortHash = currentCommit[0..6]
     return "(<${commitURL}${currentCommit}|${shortHash}>)"
 }
@@ -50,9 +48,7 @@ def getCommitLog() {
 	def lastSuccessfulCommit = getLastSuccessfulCommit()
     def currentCommit = commitHashForBuild( currentBuild.rawBuild )
     def repoURL = getRepoUrl()
-    def parts = repoURL.split(":")
-    def baseURL = "https://" + parts[0] + "/"
-    def commitURL = baseURL + parts[1] + "/commit/"
+    def commitURL = repoURL + "/commit/"
     if (lastSuccessfulCommit) {
         commits = sh(
           script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%H|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
@@ -167,7 +163,13 @@ def wrap(command, errorMessage) {
 def jobName() {
 	def job = "${env.JOB_NAME}"
 	def splits = job.split("/")
-	return splits[1] + "/" + splits[2]
+	def jobName = splits[1]
+	if (isPR) {
+		jobName += "/${env.CHANGE_BRANCH}/" + splits[2] 
+	} else {
+		jobName += "/" + splits[2]
+	}
+	return jobName
 }
 
 def PRMessage() {
