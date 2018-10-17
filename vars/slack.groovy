@@ -144,7 +144,7 @@ def qsh(command) {
 	try {
 		sh command	
 	} catch (Exception e) {
-		sendSlackError(e, "Failed to ${command} in ${env.BUILD_STAGE}")
+		sendSlackError(e, "Failed to ${command} in ${env.STAGE_NAME}")
 		throw e
 	}
 }
@@ -153,7 +153,7 @@ def wrap(command, errorMessage) {
 	try {
 		script command	
 	} catch (Exception e) {
-		sendSlackError(e, "${errorMessage} in ${env.BUILD_STAGE}")
+		sendSlackError(e, "${errorMessage} in ${env.STAGE_NAME}")
 		throw e
 	}
 }
