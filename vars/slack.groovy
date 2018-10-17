@@ -24,6 +24,9 @@ def getLastSuccessfulCommit() {
 @NonCPS
 def commitHashForBuild( build ) {
   def scmAction = build?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
+  if (scmAction instanceof jenkins.scm.api.mixin.ChangeRequestSCMRevision) {
+  	return scmAction?.revision?.pullHash
+  }
   return scmAction?.revision?.hash
 }
 
