@@ -41,12 +41,7 @@ def getCurrentCommitLink() {
     def repoURL = getRepoUrl()
     def parts = repoURL.split(":")
     def baseURL = "https://" + parts[0] + "/"
-    def commitURL = baseURL + parts[1]
-    if (baseURL.contains("github")) {
-    	commitURL += "/tree"
-    } else {
-    	commitURL += "/commit"
-    }
+    def commitURL = baseURL + parts[1] + "/commit/"
     def shortHash = currentCommit[0..6]
     return "(<${commitURL}${currentCommit}|${shortHash}>)"
 }
@@ -57,12 +52,7 @@ def getCommitLog() {
     def repoURL = getRepoUrl()
     def parts = repoURL.split(":")
     def baseURL = "https://" + parts[0] + "/"
-    def commitURL = baseURL + parts[1]
-    if (baseURL.contains("github")) {
-    	commitURL += "/tree"
-    } else {
-    	commitURL += "/commit"
-    }
+    def commitURL = baseURL + parts[1] + "/commit/"
     if (lastSuccessfulCommit) {
         commits = sh(
           script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%H|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
@@ -185,7 +175,7 @@ def PRMessage() {
 	def PRTarget = "${env.CHANGE_TARGET}"
 	def PRAuthor = "${env.CHANGE_AUTHOR_DISPLAY_NAME}"
 	def PRURL = "${env.CHANGE_URL}"
-	return "${PRTitle} - ${PRTarget} by ${PRAuthor} (<${PRURL}|Open>)"
+	return "${PRTitle} - ${PRTarget} by ${PRAuthor} (<${PRURL}|Open>)\n"
 }
 
 def isPR() {
