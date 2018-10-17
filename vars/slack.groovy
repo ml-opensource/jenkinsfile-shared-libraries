@@ -63,18 +63,14 @@ def getCommitLog() {
 }
 
 
-def getArtifacts( branch ) { 
+def getArtifacts() { 
     def artifactStores = currentBuild.rawBuild.getAction(ArtifactStoreAction.class)
     def summary = ""
     if (artifactStores != null) {
     	for(ArtifactStore artifact : artifactStores.artifacts) {
 			def fileName = artifact.fileName
 			def uuid = artifact.UDID
-			if (fileName.contains("_mr_") && branch.contains("_mr_")) {
-				summary += "<https://builds.fuzzhq.com/install.php?id=${uuid}|${fileName}>\n"
-			} else if (!branch.contains("_mr_") && !fileName.contains("_mr_")) {		
-    			summary += "<https://builds.fuzzhq.com/install.php?id=${uuid}|${fileName}>\n"
-			}
+			summary += "<https://builds.fuzzhq.com/install.php?id=${uuid}|${fileName}>\n"
     	}	    
     } else {
         summary = "No Artifacts"
@@ -201,7 +197,7 @@ def sendSlackError(Exception e, String message) {
 def buildMessage() {
 	def jobName = jobName()
 	def slackHeader = slackHeader()
-	def slackArtifacts = getArtifacts(source)
+	def slackArtifacts = getArtifacts()
 	slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
 	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
 	slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
