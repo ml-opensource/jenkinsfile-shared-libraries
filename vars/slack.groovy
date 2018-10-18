@@ -9,18 +9,9 @@ import com.fuzz.artifactstore.ArtifactStoreAction
 import com.fuzz.artifactstore.ArtifactStore
 import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
+import groovy.transform.Field
 
-class Slack implements Serializable {
-    private String slackChannel
-    def setSlackChannel(value) {
-        slackChannel = value
-    }
-    def getName() {
-        slackChannel
-    }
-}
-
-//def slackChannel = "jenkins_notifications"
+@Field slackChannel = "jenkins_notifications"
 
 def getLastSuccessfulCommit() {
   def lastSuccessfulHash = null
