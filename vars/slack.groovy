@@ -17,6 +17,11 @@ def getLastSuccessfulCommit() {
   def lastSuccessfulBuild = currentBuild.rawBuild.getPreviousSuccessfulBuild()
   if ( lastSuccessfulBuild ) {
     lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )
+  } else {
+    lastSuccessfulBuild = currentBuild.rawBuild.getPreviousBuild() 
+    if (lastSuccessfulBuild) {
+        lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )    
+    }   
   }
   return lastSuccessfulHash
 }
@@ -180,6 +185,7 @@ def slackHeader() {
 	def slackHeader = "${jobName} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
 	def currentCommitLink = getCurrentCommitLink()
 	if (isPR()) {
+        slackHeader += "Branch _*${env.CHANGE_BRANCH}*_ ${currentCommitLink}\n"
 		slackHeader += PRMessage()
 	} else {
 		slackHeader += "Branch _*${env.BRANCH_NAME}*_ ${currentCommitLink}\n"
@@ -190,7 +196,8 @@ def slackHeader() {
 
 def sendSlackError(Exception e, String message) {
 	if (!(e instanceof InterruptedException)) {
-		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message.replace("@here", "")
+        def logs = currentBuild.rawBuild.getLog(100)
+		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message + "\n```${logs}```"  
 	}
 }
 
