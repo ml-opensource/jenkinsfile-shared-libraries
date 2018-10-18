@@ -3,6 +3,6 @@ def call(Closure body) {
 		if (body != null) {
 			body()
 		}
-		slack.qsh 'fastlane clean' 
+		fastlane 'clean' 
 	}
 }
