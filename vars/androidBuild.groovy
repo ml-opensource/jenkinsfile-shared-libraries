@@ -1,5 +1,5 @@
-def call(String appName = "", Boolean refresh = false, String nodeName = "uber_android", Closure body) {
+def call(String appName = "", Boolean injectReports = true, String nodeName = "uber_android", Closure body) {
 	prettyNode(nodeName) {
-		gradleBuild(appName, refresh)
+		gradleBuild(appName, injectReports)
 	}
 }
