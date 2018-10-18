@@ -3,6 +3,7 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 		prettyPrintDecorator {
 			if (checkoutCode) {
 				checkoutStage()
+				clearChanges()
 			}
 			body()
 		}
