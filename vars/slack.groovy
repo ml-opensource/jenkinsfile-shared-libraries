@@ -11,20 +11,7 @@ import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
 import groovy.transform.Field
 
-@Field static sSlackChannel = null
-
-def setSlackChannel(value) {
-    sSlackChannel = value
-}
-
-def getSlackChannel() {
-    echo "${sSlackChannel}"
-    if (sSlackChannel) {
-        return sSlackChannel
-    } else {
-        return "jenkins_notifications"
-    }
-}
+slackChannel = "jenkins_notifications"
 
 def getLastSuccessfulCommit() {
   def lastSuccessfulHash = null
