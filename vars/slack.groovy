@@ -18,6 +18,7 @@ def setSlackChannel(value) {
 }
 
 def getSlackChannel() {
+    echo "${env.SLACK_CHANNEL}"
     if (env.SLACK_CHANNEL) {
         return env.SLACK_CHANNEL 
     } else {
@@ -39,7 +40,6 @@ def getLastSuccessfulCommit() {
   return lastSuccessfulHash
 }
 
-@NonCPS
 def commitHashForBuild( build ) {
   def scmAction = build?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
   def revision = scmAction?.revision
