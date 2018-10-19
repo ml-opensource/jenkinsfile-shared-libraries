@@ -12,7 +12,7 @@ import hudson.plugins.cobertura.targets.CoverageMetric
 import groovy.transform.Field
 
 def getSlackChannel() {
-    echo "${Global.vars.slackChannel}"
+    echo "${env.SLACK_CHANNEL}"
     if (env.SLACK_CHANNEL) {
         return env.SLACK_CHANNEL
     } else {
