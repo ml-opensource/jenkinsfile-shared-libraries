@@ -1,5 +1,5 @@
 def call(Closure body) {
-	reportStage("Reports") {
+	reportStage {
 		sh 'fastlane run_reports'
 		if (body != null) {
 			body()
