@@ -13,16 +13,15 @@ import groovy.transform.Field
 
 //@Field slackChannel = "jenkins_notifications"
 
-class Slack implements Serializable {
-    def setSlackChannel(value) {
-        env.SLACK_CHANNEL = value
-    }
-    def getSlackChannel() {
-        if (env.SLACK_CHANNEL) {
-            return env.SLACK_CHANNEL 
-        } else {
-            return "jenkins_notifications"
-        }
+def setSlackChannel(value) {
+    env.SLACK_CHANNEL = value
+}
+
+def getSlackChannel() {
+    if (env.SLACK_CHANNEL) {
+        return env.SLACK_CHANNEL 
+    } else {
+        return "jenkins_notifications"
     }
 }
 
