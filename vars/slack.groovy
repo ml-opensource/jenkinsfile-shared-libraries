@@ -204,7 +204,8 @@ def slackHeader() {
 def sendSlackError(Exception e, String message) {
 	if (!(e instanceof InterruptedException)) {
         def logs = currentBuild.rawBuild.getLog(100)
-		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message + "\n```${logs} ```"  
+		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message
+        slackSend color: 'danger', channel: slackChannel, message:"```${logs}```"  
 	}
 }
 
