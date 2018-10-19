@@ -11,16 +11,16 @@ import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
 import groovy.transform.Field
 
-//@Field slackChannel = "jenkins_notifications"
+static slackChannel = null
 
 def setSlackChannel(value) {
-    env.SLACK_CHANNEL = value
+    slackChannel = value
 }
 
 def getSlackChannel() {
-    echo "${env.SLACK_CHANNEL}"
-    if (env.SLACK_CHANNEL) {
-        return env.SLACK_CHANNEL 
+    echo "${slackChannel}"
+    if (slackChannel) {
+        return slackChannel
     } else {
         return "jenkins_notifications"
     }
