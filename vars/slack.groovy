@@ -11,7 +11,7 @@ import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
 import groovy.transform.Field
 
-class Global {
+static class Global {
   static vars = [:]
 }
 
