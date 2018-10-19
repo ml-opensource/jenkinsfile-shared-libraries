@@ -11,7 +11,7 @@ import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
 import groovy.transform.Field
 
-static sSlackChannel = null
+@Field static sSlackChannel = null
 
 def setSlackChannel(value) {
     sSlackChannel = value
