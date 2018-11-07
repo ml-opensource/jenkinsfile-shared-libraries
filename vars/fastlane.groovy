@@ -42,7 +42,7 @@ def setup(Closure body) {
 	if (body != null) {
 		body()
 	}
-	fastlane.clean()
-	fastlane.install_certs()
-	fastlane.install_dependencies()
+	clean()
+	install_certs()
+	install_dependencies()
 }
