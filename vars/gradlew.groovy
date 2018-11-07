@@ -18,35 +18,63 @@ def assembleStage(String appName = "", Closure body = null) {
 	}
 }
 
+def stop(Closure body = null) {
+	if (body != null) {
+		body()
+	}
+	gradlew "--stop"
+}
+
 def clean(Closure body = null) {
+	if (body != null) {
+		body()
+	}
+	gradlew "clean"
+}
+
+def cleanStage(Closure body = null) {
 	stage("Clean") {
-	    gradlew "--stop"
+	    stop()
 	    if (body != null) {
 			body()
 		}
-	    gradlew "clean"
+	    clean()
 	}
 }
 
-def dependencies(Closure body) {
+def dependencies(Closure body = null) {
+	if (body != null) {
+		body()
+	}
+	gradlew "androidDependencies --refresh-dependencies"
+}
+
+def dependenciesStage(Closure body = null) {
 	stage("Dependencies") {
 		if (body != null) {
 			body()
 		}
-		gradlew "androidDependencies --refresh-dependencies"
+		dependencies()
 	}
 }
 
-def generateReports(Closure body) {
+def generateReports(Closure body = null) {
+	sh "./gradlew generateReports"
+	if (body != null) {
+		body()
+	}
+}
+
+def generateReportsStage(Closure body = null) {
 	reportStage {
-	    sh "./gradlew generateReports"
+	    generateReports()
 	    if (body != null) {
 			body()
 		}
 	}
 }
 
-def test(Boolean injectReports = true, Closure body) {
+def test(Boolean injectReports = true, Closure body = null) {
 	testStage {
 		if (body != null) {
 			body()
@@ -59,23 +87,23 @@ def test(Boolean injectReports = true, Closure body) {
 	}
 }
 
-def setup(Boolean injectReports = true, Closure body) {
+def setup(Boolean injectReports = true, Closure body = null) {
 	if (body != null) {
 		body()
 	}
-	clean()
+	cleanStage()
 	if (injectReports) {
 		androidBuildScriptInject()
 	}
-	dependencies()
+	dependenciesStage()
 }
 
-def pipeline(Map config, Closure body) {
+def pipeline(Map config, Closure body = null) {
 	Boolean injectReports = config.get('injectReports', true)
 	setup(injectReports)
 	assembleStage(config.get('name', ''))
-	test(injectReports)
+	testStage(injectReports)
 	if (injectReports) {
-		generateReports()
+		generateReportsStage()
 	}
 }
