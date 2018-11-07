@@ -67,30 +67,34 @@ def performTestStage(String inKeys = "", Closure body = null) {
 	}
 }
 
-def deploy_jenkins(String inKeys = "", Closure body = null) {
+def deploy_jenkins(String inKeys = "", Boolean resign = false, Closure body = null) {
 	def keys = inKeys.split(",")
 	if (body != null) {
 		body()
 	}
 	for(key in keys){
-		fastlane "deploy_jenkins key:${key}"
+		if (resign) {
+			fastlane "deploy_jenkins key:${key} resign:true"
+		} else {
+			fastlane "deploy_jenkins key:${key}"
+		}
 	}
 }
 
-def deployStage(String inKeys = "", String appName = "", Boolean release = false, Closure body = null) {
-	mobileBuildStage(appName) {
+def deployStage(Map config, Closure body = null) {
+	mobileBuildStage(config.name) {
 		if (body != null) {
 			body()
 		}
-		if (!release) {
-			deploy_jenkins(inKeys) 
+		if (!config.release) {
+			deploy_jenkins(config.keys, config.resign) 
 		}
 	}
 }
 
-def pipeline(String inKeys = "", String appName = "", Closure body) {
+def pipeline(Map config, Closure body) {
 	setup()
-	deployStage(inKeys, appName)
-	performTestStage(inKeys)
+	deployStage(config.keys, config.name, config.resign)
+	performTestStage(config.keys)
 	report()
 }
