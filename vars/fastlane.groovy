@@ -29,7 +29,7 @@ def install_dependencies(Closure body = null) {
 	}
 }
 
-def report(Closure body = null) {
+def run_reports(Closure body = null) {
 	reportStage {
 		sh 'fastlane run_reports'
 		if (body != null) {
