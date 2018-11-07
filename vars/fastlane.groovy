@@ -82,19 +82,19 @@ def deploy_jenkins(String inKeys = "", Boolean resign = false, Closure body = nu
 }
 
 def deployStage(Map config, Closure body = null) {
-	mobileBuildStage(config.name) {
+	mobileBuildStage(config.get('name', '')) {
 		if (body != null) {
 			body()
 		}
 		if (!config.release) {
-			deploy_jenkins(config.keys, config.resign) 
+			deploy_jenkins(config.keys, config.get('resign', false)) 
 		}
 	}
 }
 
 def pipeline(Map config, Closure body) {
 	setup()
-	deployStage(config.keys, config.name, config.resign)
+	deployStage keys: config.keys, name: config.get('name', ''), resign: config.get('resign', false)
 	performTestStage(config.keys)
 	report()
 }
