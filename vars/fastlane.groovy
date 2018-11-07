@@ -2,7 +2,7 @@ def call(String command) {
     slack.qsh "fastlane ${command}"
 }
 
-def clean(Closure body) {
+def clean(Closure body = null) {
 	stage("Clean") {
 		if (body != null) {
 			body()
@@ -11,7 +11,7 @@ def clean(Closure body) {
 	}
 }
 
-def install_certs(Closure body) {
+def install_certs(Closure body = null) {
 	stage("Provision") {
 		if (body != null) {
 			body()
@@ -20,7 +20,7 @@ def install_certs(Closure body) {
 	}
 }
 
-def install_dependencies(Closure body) {
+def install_dependencies(Closure body = null) {
 	stage("Dependencies") {
 		if (body != null) {
 			body()
@@ -29,7 +29,7 @@ def install_dependencies(Closure body) {
 	}
 }
 
-def report(Closure body) {
+def report(Closure body = null) {
 	reportStage {
 		sh 'fastlane run_reports'
 		if (body != null) {
@@ -38,7 +38,7 @@ def report(Closure body) {
 	}
 }
 
-def setup(Closure body) {
+def setup(Closure body = null) {
 	if (body != null) {
 		body()
 	}
