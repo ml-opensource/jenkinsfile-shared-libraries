@@ -62,13 +62,18 @@ def getCommitLog() {
     def repoURL = getRepoUrl()
     def commitURL = repoURL + "/commit/"
     if (lastSuccessfulCommit) {
-        commits = sh(
-          script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%H|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
-          returnStdout: true
-        )
-        if (commits.equals("")) {
-        	return "No Changes (re-build?)"
+        try {
+            commits = sh(
+                script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%H|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
+                returnStdout: true
+            )
+            if (commits.equals("")) {
+        	    return "No Changes (re-build?)"
+            }
+        } catch (Throwable t) {
+            return "Couldn't get changes (history got changed?)"
         }
+        
        	return commits
     }
     return "No Changes (re-build?)"
