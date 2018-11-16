@@ -47,7 +47,7 @@ def setup(Closure body = null) {
 	install_dependencies()
 }
 
-def perform_test(String inKeys = "", Closure body = null) {
+def perform_tests(String inKeys = "", Closure body = null) {
 	def keys = inKeys.split(",")
 	if (body != null) {
 		body()
@@ -57,12 +57,12 @@ def perform_test(String inKeys = "", Closure body = null) {
 	}
 }
 
-def performTestStage(String inKeys = "", Closure body = null) {
+def performTestsStage(String inKeys = "", Closure body = null) {
 	testStage {
 		if (body != null) {
 			body()
 		}
-		perform_test(inKeys)
+		perform_tests(inKeys)
 		archiveAppForTesting()
 	}
 }
