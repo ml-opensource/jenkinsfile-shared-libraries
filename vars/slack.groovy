@@ -184,7 +184,7 @@ def PRMessage() {
 
 def isPR() {
 	def PRTitle = "${env.CHANGE_TITLE}"
-	return !PRTitle.trim().equals("")
+	return !PRTitle.trim().equals("") && !PRTitle.trim().equals("null")
 }
 
 def slackHeader() {
