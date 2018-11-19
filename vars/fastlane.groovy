@@ -47,7 +47,7 @@ def setup(Closure body = null) {
 	install_dependencies()
 }
 
-def perform_test(String inKeys = "", Closure body = null) {
+def perform_tests(String inKeys = "", Closure body = null) {
 	def keys = inKeys.split(",")
 	if (body != null) {
 		body()
@@ -57,44 +57,44 @@ def perform_test(String inKeys = "", Closure body = null) {
 	}
 }
 
-def performTestStage(String inKeys = "", Closure body = null) {
+def performTestsStage(String inKeys = "", Closure body = null) {
 	testStage {
 		if (body != null) {
 			body()
 		}
-		perform_test(inKeys)
+		perform_tests(inKeys)
 		archiveAppForTesting()
 	}
 }
 
-def deploy_jenkins(String inKeys = "", Boolean resign = false, Closure body = null) {
+def build(String inKeys = "", Boolean resign = false, Closure body = null) {
 	def keys = inKeys.split(",")
 	if (body != null) {
 		body()
 	}
 	for(key in keys){
 		if (resign) {
-			fastlane "deploy_jenkins key:${key} resign:true"
+			fastlane "build key:${key} resign:true"
 		} else {
-			fastlane "deploy_jenkins key:${key}"
+			fastlane "build key:${key}"
 		}
 	}
 }
 
-def deployStage(Map config, Closure body = null) {
+def buildStage(Map config, Closure body = null) {
 	mobileBuildStage(config.get('name', '')) {
 		if (body != null) {
 			body()
 		}
 		if (!config.release) {
-			deploy_jenkins(config.keys, config.get('resign', false)) 
+			build(config.keys, config.get('resign', false)) 
 		}
 	}
 }
 
 def pipeline(Map config, Closure body) {
 	setup()
-	deployStage keys: config.keys, name: config.get('name', ''), resign: config.get('resign', false)
+	buildStage keys: config.keys, name: config.get('name', ''), resign: config.get('resign', false)
 	performTestStage(config.keys)
 	report()
 }
