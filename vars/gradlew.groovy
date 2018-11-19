@@ -6,7 +6,7 @@ def assemble(Closure body = null) {
 	if (body != null) {
 		body()
 	}
-	gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER}"
+	gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER} --stacktrace --info"
 }
 
 def assembleStage(String appName = "", Closure body = null) {
@@ -75,15 +75,22 @@ def generateReportsStage(Closure body = null) {
 }
 
 def test(Boolean injectReports = true, Closure body = null) {
+	if (body != null) {
+		body()
+	}
+	if (injectReports) {
+		gradlew "jacocoDebugTestReport"
+	} else {
+		gradlew "test"
+	}
+}
+
+def testStage(Boolean injectReports = true, Closure body = null) {
 	testStage {
 		if (body != null) {
 			body()
 		}
-		if (injectReports) {
-			gradlew "jacocoDebugTestReport"
-		} else {
-			gradlew "test"
-		}
+		test(injectReports)
 	}
 }
 
