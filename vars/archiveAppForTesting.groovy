@@ -1,3 +1,6 @@
 def call(String appPath = "build/Build/Products/Debug-iphonesimulator/") {
-	zip archive: true, dir: "${appPath}", glob: '*.app/**/*', zipFile: "app.zip"
+	try {
+		zip archive: true, dir: "${appPath}", glob: '*.app/**/*', zipFile: "app.zip"
+	} catch (Throwable t) {
+	}
 }
