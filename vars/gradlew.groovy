@@ -2,23 +2,23 @@ def call(String command) {
     slack.qsh "./gradlew ${command}"
 }
 
-def assemble(Boolean refresh = false, Closure body = null) {
+def assemble(Boolean refresh = false, String additional = "", Closure body = null) {
 	if (body != null) {
 		body()
 	}
 	if (refresh) {
-		gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER} --refresh-dependencies --stacktrace --info"
+		gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER} --refresh-dependencies --stacktrace --info ${additional}"
 	} else {
-		gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER} --stacktrace --info"
+		gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER} --stacktrace --info ${additional}"
 	}
 }
 
-def assembleStage(String appName = "", Boolean refresh = false, Closure body = null) {
+def assembleStage(String appName = "", Boolean refresh = false, String additional = "", Closure body = null) {
 	mobileBuildStage(appName) {
 		if (body != null) {
 			body()
 		}
-		assemble(refresh)
+		assemble(refresh, additional)
 	}
 }
 
