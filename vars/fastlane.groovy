@@ -7,7 +7,7 @@ def clean(Closure body = null) {
 		if (body != null) {
 			body()
 		}
-		fastlane 'clean' 
+		fastlane 'clean reset:true' 
 	}
 }
 
