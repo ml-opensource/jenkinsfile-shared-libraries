@@ -208,9 +208,31 @@ def slackHeader() {
 
 def sendSlackError(Exception e, String message) {
 	if (!(e instanceof InterruptedException)) {
-        def logs = currentBuild.rawBuild.getLog(20)
+        def logs = currentBuild.rawBuild.getLog(200)
+        def logsToPrint = []
+        def addToLogs = false
+        for(String logString : logs) {
+            if (logString) {
+                if (logString.contains("fastlane finished with errors")) {
+                    addToLogs = true
+                } else if (logString.contains("FAILURE: Build failed with an exception.")) {
+                    addToLogs = true    
+                }
+            }
+            if (addToLogs) {
+                if (logString.contains("from /Users") && logString.contains("gems/fastlane") && logString.contains("lib/fastlane_core")) {
+                    addToLogs = false
+                } else if (logString.contains("* Exception is:")) {
+                    addToLogs = false
+                }
+            }
+            if (addToLogs) {
+                logsToPrint.add(logString)
+            }
+        } 
+        logsToPrint = logsToPrint.subList(Math.max(l.size() - 20, 0), logsToPrint.size())
 		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message
-        slackSend color: 'danger', channel: slackChannel, message:"```${logs}```"  
+        slackSend color: 'danger', channel: slackChannel, message:"```${logsToPrint}```"  
 	}
 }
 
