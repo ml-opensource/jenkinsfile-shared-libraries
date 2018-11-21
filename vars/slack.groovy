@@ -230,7 +230,7 @@ def sendSlackError(Exception e, String message) {
                 logsToPrint.add(logString)
             }
         } 
-        logsToPrint = logsToPrint.subList(Math.max(l.size() - 20, 0), logsToPrint.size())
+        logsToPrint = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size())
 		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message
         slackSend color: 'danger', channel: slackChannel, message:"```${logsToPrint}```"  
 	}
