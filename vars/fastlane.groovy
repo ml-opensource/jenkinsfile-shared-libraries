@@ -53,7 +53,8 @@ def perform_tests(String inKeys = "", Closure body = null) {
 		body()
 	}
 	for(key in keys){
-		fastlane "perform_tests key:${key}"
+		trimmedKey = key.trim()
+		fastlane "perform_tests key:${trimmedKey}"
 	}
 }
 
@@ -73,10 +74,11 @@ def build(String inKeys = "", Boolean resign = false, Closure body = null) {
 		body()
 	}
 	for(key in keys){
+		trimmedKey = key.trim()
 		if (resign) {
-			fastlane "build key:${key} resign:true"
+			fastlane "build key:${trimmedKey} resign:true"
 		} else {
-			fastlane "build key:${key}"
+			fastlane "build key:${trimmedKey}"
 		}
 	}
 }
