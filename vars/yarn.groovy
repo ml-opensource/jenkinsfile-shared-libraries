@@ -32,6 +32,7 @@ def test(Closure body = null) {
 def setup(String nodeVersion = 'node', Closure body = null) {
 	stage("Configure Environment") {
 		sh 'whoami'
+		sh 'echo $PATH'
 		sh 'printenv'
 		sh "nvm install ${nodeVersion}"
 		sh 'curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -'
