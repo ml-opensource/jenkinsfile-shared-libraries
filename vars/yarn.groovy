@@ -11,7 +11,7 @@ def install(Closure body = null) {
 	}
 }
 
-def install(Closure body = null) {
+def build(Closure body = null) {
 	stage("Build") {
 		if (body != null) {
 			body()
