@@ -31,7 +31,7 @@ def test(Closure body = null) {
 
 def setup(String nodeVersion = 'node', Closure body = null) {
 	stage("Configure Environment") {
-		sh '''#!/bin/bash
+		sh ```#!/bin/bash
 		      [ -s "$HOME/.nvm/nvm.sh" ] && source "$HOME/.nvm/nvm.sh"
 		```
 		sh 'printenv'
