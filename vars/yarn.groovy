@@ -34,7 +34,7 @@ def setup(String nodeVersion = 'node', Closure body = null) {
 		sh 'whoami'
 		sh 'echo $PATH'
 		sh 'printenv'
-		sh "#!usr/bin/bash\n source ~/.bash_profile \n nvm install ${nodeVersion}"
+		sh "#!/bin/bash\n source ~/.bash_profile \n nvm install ${nodeVersion}"
 		sh 'curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -'
 		sh 'echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
 		sh 'sudo apt-get update && sudo apt-get install yarn -y'
