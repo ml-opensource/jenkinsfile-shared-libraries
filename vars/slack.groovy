@@ -162,6 +162,15 @@ def qsh(command) {
 	}
 }
 
+def qbash(command) {
+    try {
+        bash command  
+    } catch (Exception e) {
+        sendSlackError(e, "Failed to ${command} in _*Stage ${env.STAGE_NAME}*_")
+        throw e
+    }
+}
+
 def wrap(command, errorMessage) {
 	try {
 		script command	
