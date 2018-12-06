@@ -2,7 +2,7 @@ def call(String baseURL) {
 	env.BASE_URL = baseURL
 	env.RAW_ENV = env.BRANCH_NAME
 	endpointPrefix = env.BRANCH_NAME
-	if (currentEnv != "production" || currentEnv != "staging" || currentEnv != "dev") {
+	if (endpointPrefix != "production" || endpointPrefix != "staging" || endpointPrefix != "dev") {
   		env.CLEAN_ENV = "dev"
   		env.STANDARD_ENV = false
 	} else {
