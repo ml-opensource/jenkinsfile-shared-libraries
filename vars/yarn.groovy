@@ -35,8 +35,15 @@ def setup(String nodeVersion = 'node', Closure body = null) {
 		bash 'curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -'
 		bash 'echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
 		bash 'sudo apt-get update && sudo apt-get install yarn -y'
+		sh 'rm -rf dist || echo "Done"'
+		sh 'rm -rf node_modules || echo "Done"'
 		if (body != null) {
 			body()
 		}
 	}
+}
+
+def installAndSetup() {
+	setup()
+	install()
 }
