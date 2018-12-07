@@ -5,7 +5,14 @@ def call(String baseURL) {
 
 	namedBranches = ["production", "sandbox", "staging", "dev"]
 	if (!namedBranches.contains(endpointPrefix)) {
-  		env.CLEAN_ENV = "dev"
+  		target = "dev"
+  		if (github.isPR()) {
+  			target = env.CHANGE_TARGET
+  			if (!namedBranches.contains(target)) {
+  				target = "dev"
+  			}
+  		}
+		env.CLEAN_ENV = target
   		env.STANDARD_ENV = false
   		env.ENV_TYPE = "branch"
 	} else {
