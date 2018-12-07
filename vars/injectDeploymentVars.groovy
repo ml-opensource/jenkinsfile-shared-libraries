@@ -8,7 +8,8 @@ def call(String baseURL) {
 		endpointPrefix = env.CHANGE_BRANCH
 	}
 
-	if (endpointPrefix != "production" || endpointPrefix != "staging" || endpointPrefix != "dev") {
+	namedBranches = ["production", "sandbox", "staging", "dev"]
+	if (!namedBranches.contains(endpointPrefix)) {
   		env.CLEAN_ENV = "dev"
   		env.STANDARD_ENV = false
   		env.ENV_TYPE = "branch"
