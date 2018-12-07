@@ -5,8 +5,10 @@ def call(String baseURL) {
 	if (endpointPrefix != "production" || endpointPrefix != "staging" || endpointPrefix != "dev") {
   		env.CLEAN_ENV = "dev"
   		env.STANDARD_ENV = false
+  		env.ENV_TYPE = "branch"
 	} else {
 		env.STANDARD_ENV = true
+		env.ENV_TYPE = endpointPrefix
 	}
 	if (endpointPrefix == "production") {
 		endpointPrefix = ""
