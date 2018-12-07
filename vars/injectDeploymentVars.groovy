@@ -1,6 +1,6 @@
 def call(String baseURL) {
 	env.BASE_URL = baseURL
-	branchName = env.BRANCH_NAME.replace("-","_")
+	branchName = env.BRANCH_NAME.replace("-","").replace("_","").toLowerCase()
 	env.RAW_ENV = branchName
 	endpointPrefix = branchName
 
