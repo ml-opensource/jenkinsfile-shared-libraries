@@ -1,13 +1,14 @@
 def call(String baseURL) {
 	env.BASE_URL = baseURL
-	env.RAW_ENV = env.BRANCH_NAME
-	endpointPrefix = env.BRANCH_NAME
+	branchName = env.BRANCH_NAME.replace("-","_")
+	env.RAW_ENV = branchName
+	endpointPrefix = branchName
 
 	namedBranches = ["production", "sandbox", "staging", "dev"]
 	if (!namedBranches.contains(endpointPrefix)) {
   		target = "dev"
   		if (github.isPR()) {
-  			target = env.CHANGE_TARGET
+  			target = env.CHANGE_TARGET.replace("-","_")
   			if (!namedBranches.contains(target)) {
   				target = "dev"
   			}
