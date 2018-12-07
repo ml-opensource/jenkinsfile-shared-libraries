@@ -254,6 +254,15 @@ def buildMessage() {
 	slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
 }
 
+def linkMessage(String inURL) {
+    def jobName = jobName()
+    def slackHeader = slackHeader()
+    def slackArtifacts = "${inURL}\n"
+    slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
+    def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
+    slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
+}
+
 def testMessage() {
 	def slackHeader = slackHeader()
 	def failedTest = getFailedTests()
