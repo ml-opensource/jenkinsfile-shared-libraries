@@ -4,7 +4,7 @@ def call(String baseURL) {
 	endpointPrefix = env.BRANCH_NAME
 
 	if (github.isPR()) {
-		end.RAW_ENV = env.CHANGE_BRANCH
+		env.RAW_ENV = env.CHANGE_BRANCH
 		endpointPrefix = env.CHANGE_BRANCH
 	}
 
