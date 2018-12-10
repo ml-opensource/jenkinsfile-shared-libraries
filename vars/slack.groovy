@@ -45,7 +45,7 @@ def commitHashForBuild( build ) {
 
 def getRepoUrl() {
 	def gituri = scm.repositories[0].uris[0].toASCIIString()
-    return gituri.replace(".git","")
+    return gituri.replace(".git","").replace("git@github.com:","https://github.com/")
 }
 
 def getCurrentCommitLink() {
