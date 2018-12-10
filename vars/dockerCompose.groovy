@@ -4,7 +4,10 @@ def up(String file) {
 		volumes = sh(script: "docker volume ls -qf dangling=true", returnStdout: true)
 		if (volumes.trim()) {
 			sh "echo ${volumes}"
-			bash "docker volume rm ${volumes}"
+			splits = volumes.split("\n")
+			for (volume in splits) {
+				bash "docker volume rm ${volume}"
+			}
 		}
 		bash "docker-compose -f ${file} up -d --build"
 	}
