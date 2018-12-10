@@ -3,6 +3,7 @@ def up(String file) {
 		bash "docker-compose -f ${file} down"
 		volumes = sh(script: "docker volume ls -qf dangling=true", returnStdout: true)
 		if (volumes.trim()) {
+			sh "echo ${volumes}"
 			bash "docker volume rm ${volumes}"
 		}
 		bash "docker-compose -f ${file} up -d --build"
