@@ -1,5 +1,6 @@
 def up(String file) {
 	stage("Docker Up") {
+		bash "docker volume rm $(docker volume ls -qf dangling=true)"
 		bash "docker-compose -f ${file} up -d --build"
 	}
 }
