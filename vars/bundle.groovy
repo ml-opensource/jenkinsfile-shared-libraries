@@ -4,6 +4,6 @@ def install() {
 	}
 }
 
-def rake(String command) {
+def rake(String command = "") {
 	bash "bundle exec rake ${command}"
 }
