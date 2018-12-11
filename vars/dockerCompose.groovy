@@ -2,7 +2,7 @@ def up(String file) {
 	stage("Docker Up") {
 		bash "docker-compose -f ${file} down"
 		bash "docker volume prune --force"
-		bash "docker-compose -f ${file} up -d --build"
+		slack.qbash "docker-compose -f ${file} up -d --build"
 	}
 }
 
