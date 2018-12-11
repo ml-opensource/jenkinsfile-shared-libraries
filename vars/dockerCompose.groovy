@@ -9,5 +9,6 @@ def up(String file) {
 def down(String file) {
 	stage("Docker Down") {
 		bash "docker-compose -f ${file} down"
+		bash "docker volume prune --force"
 	}
 }
