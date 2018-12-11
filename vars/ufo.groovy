@@ -4,8 +4,8 @@ def install() {
 
 def deploy(String cluster = 'dev', String config = 'default') {
 	if (config == 'default') {
-		slack.bash "ufo deploy --cluster ${cluster}"
+		slack.bash "ufo deploy --cluster ${cluster} --timeout 10"
 	} else {
-		slack.bash "ufo deploy --cluster ${cluster} --config ${config}"
+		slack.bash "ufo deploy --cluster ${cluster} --config ${config} --timeout 10"
 	}
 }
