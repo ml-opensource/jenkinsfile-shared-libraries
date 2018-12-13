@@ -20,13 +20,8 @@ def build(Closure body = null) {
 	}
 }
 
-def test(Closure body = null) {
-	stage("Test") {
-		if (body != null) {
-			body()
-		}
-		yarn 'test' 
-	}
+def test(String extras = "", Closure body = null) {
+	yarn "test ${extras}" 
 }
 
 def setup(String nodeVersion = 'node', Closure body = null) {
