@@ -16,4 +16,8 @@ def call(Closure body = null) {
 		step([$class: 'RcovPublisher', targets: []])						
 	} catch (Exception e) {
 	}
+
+	if (slack.getTestSummary() == "No tests found") {
+		currentBuild.result = "UNSTABLE"
+	}
 }
