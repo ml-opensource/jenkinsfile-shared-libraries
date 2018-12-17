@@ -4,16 +4,20 @@ def clone(String gitUrl) {
 	sh "git clone ${gitUrl}"
 }
 
-def mirror(String mirrorURL) {
-	if (github.isPR()) {}
-		sh "git checkout ${env.CHANGE_BRANCH}"
-	} else {
-		sh "git checkout ${env.BRANCH_NAME}"
+def mirror(String mirrorURL, String credential = "") {
+	branch = env.BRANCH_NAME
+	if (github.isPR()) {
+		branch = env.CHANGE_BRANCH
 	}
-	sh "git remote add github ${mirrorURL}"
-	if (github.isPR()) {}
-		sh "git push github ${env.CHANGE_BRANCH}"
+	if (credential) {
+		withCredentials([usernamePassword(credentialsId: credential, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+			sh "git checkout ${branch}"
+			sh "git remote add github ${mirrorURL}"
+			sh "git push github ${branch}"
+		}
 	} else {
-		sh "git push github ${env.BRANCH_NAME}"
+		sh "git checkout ${branch}"
+		sh "git remote add github ${mirrorURL}"
+		sh "git push github ${branch}"
 	}
 }
