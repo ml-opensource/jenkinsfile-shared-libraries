@@ -9,17 +9,19 @@ def mirror(String mirrorURL, String credential = "") {
 	if (github.isPR()) {
 		branch = env.CHANGE_BRANCH
 	}
+	sh "git checkout ${branch}"
+	try {
+		sh "git remote add github ${mirrorURL}"
+	} catch(Exception e) {
+
+	}
 	if (credential) {
 		withCredentials([usernamePassword(credentialsId: credential, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-			sh "git checkout ${branch}"
-			sh "git remote add github ${mirrorURL}"
 			sh "git config user.name ${env.GIT_USERNAME}"
 			sh "git config user.password ${env.GIT_PASSWORD}"
 			sh "git push github ${branch}"
 		}
 	} else {
-		sh "git checkout ${branch}"
-		sh "git remote add github ${mirrorURL}"
 		sh "git push github ${branch}"
 	}
 }
