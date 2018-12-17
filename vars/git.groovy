@@ -10,6 +10,7 @@ def mirror(String mirrorURL, String credential = "") {
 		branch = env.CHANGE_BRANCH
 	}
 	sh "git checkout ${branch}"
+	sh "git pull origin ${branch}"
 	if (credential) {
 		withCredentials([usernamePassword(credentialsId: credential, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
 			authURL = mirrorURL.replace("https://","https://${GIT_USERNAME}:${GIT_PASSWORD}@")
