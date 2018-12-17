@@ -13,6 +13,8 @@ def mirror(String mirrorURL, String credential = "") {
 		withCredentials([usernamePassword(credentialsId: credential, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
 			sh "git checkout ${branch}"
 			sh "git remote add github ${mirrorURL}"
+			sh "git config user.name ${env.GIT_USERNAME}"
+			sh "git config user.password ${env.GIT_PASSWORD}"
 			sh "git push github ${branch}"
 		}
 	} else {
