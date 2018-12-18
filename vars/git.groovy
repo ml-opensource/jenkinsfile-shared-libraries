@@ -24,7 +24,7 @@ def mirror(String mirrorURL, String credential = "") {
 }
 
 def shortHash() {
-	def scmAction = build?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
+	def scmAction = currentBuild.rawBuild?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
   	def revision = scmAction?.revision
   	if (revision instanceof org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision) {
   		return revision?.pullHash[0..6]
