@@ -1,7 +1,7 @@
-def call(String envFile, Closure body = null) {
+def call(String envFile, String ending = '', Closure body = null) {
 	withCredentials([file(credentialsId: "${envFile}", variable: 'ENVFILE')]) {
-		sh "mv $ENVFILE .env"
+		sh "mv $ENVFILE .env${ending}"
 		body()
-		sh "rm .env"
+		sh "rm .env${ending}"
 	}
 }
