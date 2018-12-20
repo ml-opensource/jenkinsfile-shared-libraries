@@ -1,9 +1,9 @@
 def call(String envFile, Closure body = null) {
 	withCredentials([file(credentialsId: "${envFile}", variable: 'ENVFILE')]) {
-		sh "mv $ENVFILE .env${ending}"
-		sh "chmod 600 .env${ending}"
+		sh "mv $ENVFILE .env"
+		sh "chmod 600 .env"
 		body()
-		sh "rm .env${ending}"
+		sh "rm .env"
 	}
 }
 
