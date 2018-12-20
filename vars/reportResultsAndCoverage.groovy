@@ -12,6 +12,12 @@ def call(Closure body = null) {
 	}
 
 	try {
+		//Clover
+		step([$class: 'CloverPublisher', cloverReportFileName: 'clover.xml', failingTarget: [], healthyTarget: [conditionalCoverage: 80, methodCoverage: 70, statementCoverage: 80], unhealthyTarget: []])					
+	} catch (Exception e) {
+	}
+
+	try {
 		//Rcov	
 		step([$class: 'RcovPublisher', targets: []])						
 	} catch (Exception e) {
