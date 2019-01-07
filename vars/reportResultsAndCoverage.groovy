@@ -1,7 +1,7 @@
 def call(Closure body = null) {
 	try {
 		//Test Reporting
-		junit allowEmptyResults: true, testResults: '**/*.junit, **/junit-reports/*.xml, **/test-results/**/*.xml, **/TEST*.xml, **/*junit.xml'
+		junit allowEmptyResults: true, testResults: '**/*.junit, **/junit-reports/*.xml, **/test-results/**/*.xml, **/TEST*.xml, **/*junit.xml, **/testng-results.xml'
 	} catch (Exception e) {
 		throw e
 	}
