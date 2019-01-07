@@ -8,7 +8,7 @@ def call(String gitRepo = "", String branch = "", Closure body) {
 				gitURL = "git@github.com:fuzz-productions/${gitRepo}.git"
 			}
 			git.clone(gitURL, branch)
-			folderName = gitUrl.split('/')[1].replace(".git","")
+			folderName = gitURL.split('/')[1].replace(".git","")
 			folderPath = "${folderName}/"
 
 			copyArtifacts filter: 'app.zip', projectName: "${env.fullProjectName}", selector: specific("${env.BUILD_NUMBER}"), target: "${folderName}"
