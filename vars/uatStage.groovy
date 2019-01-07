@@ -7,7 +7,7 @@ def call(String gitRepo = "", String branch = "", Closure body) {
 			if (!gitRepo.contains("https://") && !gitRepo.contains("git@")) {
 				gitURL = "git@github.com:fuzz-productions/${gitRepo}.git"
 			}
-			git.clone(gitRepo, branch)
+			git.clone(gitURL, branch)
 			folderName = gitUrl.split('/')[1].replace(".git","")
 			folderPath = "${folderName}/"
 
