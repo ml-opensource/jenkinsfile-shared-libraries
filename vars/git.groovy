@@ -1,7 +1,11 @@
-def clone(String gitUrl) {
+def clone(String gitUrl, String branch = '') {
 	folderName = gitUrl.split('/')[1].replace(".git","")
 	sh "rm -rf ${folderName} || echo 'Done'"
-	sh "git clone ${gitUrl}"
+	if (branch == '') {
+		sh "git clone ${gitUrl}"
+	} else {
+		sh "git clone ${gitUrl} -b ${branch}"
+	}
 }
 
 def mirror(String mirrorURL, String credential = "") {

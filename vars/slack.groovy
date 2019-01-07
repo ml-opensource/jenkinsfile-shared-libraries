@@ -280,6 +280,27 @@ def testMessage() {
 	}
 }
 
+def uatMessage() {
+    def slackHeader = slackHeader()
+    def failedTest = getFailedTests()
+    def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
+    def reportMessage = "_*Report*_\n" + env.BUILD_URL + "/Extent-Reports/" + "\n"
+    if (env.TEST_RAIL_ID) {
+        def testRailURL = "https://fuzz.testrail.io/index.php?/runs/overview/${env.TEST_RAIL_ID}" 
+    }
+    def slackTestSummary = testSummary + reportMessage
+    if (failedTest == null) {
+        if (testSummary.contains("No tests found")) {
+            slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary 
+        } else {
+            slackSend color: 'good', channel: slackChannel, message: slackHeader + slackTestSummary 
+        }
+    } else {
+        slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
+        slackSend color: 'warning', channel: slackChannel, message: failedTest
+    }
+}
+
 def echo() {
 	def slackHeader = slackHeader()
 	slackSend color: 'good', channel: slackChannel, message: slackHeader
