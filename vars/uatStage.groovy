@@ -11,11 +11,11 @@ def call(String gitRepo = "", String branch = "", Closure body) {
 			folderName = gitURL.split('/')[1].replace(".git","")
 			folderPath = "${folderName}/"
 
-			echo "${env.fullProjectName}"
+			echo "${currentBuild.fullProjectName}"
 			try {
-				copyArtifacts filter: 'app.zip', projectName: "${env.fullProjectName}", selector: specific("${env.BUILD_NUMBER}"), target: "${folderName}"
+				copyArtifacts filter: 'app.zip', projectName: "${currentBuild.fullProjectName}", selector: specific("${env.BUILD_NUMBER}"), target: "${folderName}"
 			} catch (Throwable t) {
-				
+
 			}
 		}
 
