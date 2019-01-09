@@ -100,9 +100,23 @@ def getTestSummary() {
     def summary = ""
 
     if (testResultAction != null) {
-        total = testResultAction.getTotalCount()
-        failed = testResultAction.getFailCount()
-        skipped = testResultAction.getSkipCount()
+        orgtotal = testResultAction.getTotalCount()
+        orgfailed = testResultAction.getFailCount()
+        orgskipped = testResultAction.getSkipCount()
+
+        total = orgtotal
+        failed = orgfailed
+        skipped = orgskipped
+
+        if (env.SLACK_TOTAL) {
+            total = env.SLACK_TOTAL.toInteger() - total 
+            failed = env.SLACK_FAILED.toInteger() - failed 
+            skipped = env.SLACK_SKIPPED.toInteger() - skipped   
+        }
+
+        env.SLACK_TOTAL = orgtotal + ""
+        env.SLACK_FAILED = orgfailed + ""
+        env.SLACK_SKIPPED = orgskipped + ""
 
         summary = "Passed: " + (total - failed - skipped)
         summary = summary + (", Failed: " + failed)
@@ -141,7 +155,11 @@ def getFailedTests() {
         }
 
         for(CaseResult cr : failedTests) {
-            failedTestsString = failedTestsString + "${cr.getFullDisplayName()}:\n${cr.getErrorDetails()}\n\n"
+            if (cr.getFullDisplayName().contains("${env.STAGE_NAME} / ")) {
+                failedTestsString = failedTestsString + "${cr.getFullDisplayName()}:\n${cr.getErrorDetails()}\n\n"
+            } else if (!cr.getFullDisplayName().contains(" / ")) {
+                failedTestsString = failedTestsString + "${cr.getFullDisplayName()}:\n${cr.getErrorDetails()}\n\n"
+            }
         }
         if (failedTestsString.equals("")) {
         	return null;
