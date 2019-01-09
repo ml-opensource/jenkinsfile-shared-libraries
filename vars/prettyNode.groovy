@@ -5,8 +5,6 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 				checkoutStage()
 				clearChanges()
 			}
-			retString = hasPR()
-			sh "echo ${retString}"
 			body()
 		}
 	}
