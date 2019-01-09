@@ -14,7 +14,7 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 @NonCPS
 def hasPR() {
 	projects = currentBuild.rawBuild.project.getParent().getItems()
-	for (project : projects) {
+	for (project in projects) {
 		sh "echo ${project.toString()}"
 	}
 }
