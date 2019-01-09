@@ -5,6 +5,8 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 				checkoutStage()
 				clearChanges()
 			}
+			retString = hasPR()
+			sh "echo ${retString}"
 			body()
 		}
 	}
@@ -12,7 +14,9 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 
 @NonCPS def hasPR() {
 	projects = currentBuild.rawBuild.project.getParent().getItems()
+	retString = ""
 	for (project in projects) {
-		println project
+		retString = retString + project.toString()
 	}
+	return retString
 }
