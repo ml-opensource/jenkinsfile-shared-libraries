@@ -156,7 +156,8 @@ def getFailedTests() {
 
         for(CaseResult cr : failedTests) {
             if (cr.getFullDisplayName().contains("${env.STAGE_NAME} / ")) {
-                failedTestsString = failedTestsString + "${cr.getFullDisplayName()}:\n${cr.getErrorDetails()}\n\n"
+                testDisplayName = cr.getFullDisplayName().replace("${env.STAGE_NAME} / ", "")
+                failedTestsString = failedTestsString + "${testDisplayName}:\n${cr.getErrorDetails()}\n\n"
             } else if (!cr.getFullDisplayName().contains(" / ")) {
                 failedTestsString = failedTestsString + "${cr.getFullDisplayName()}:\n${cr.getErrorDetails()}\n\n"
             }
