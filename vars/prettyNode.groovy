@@ -15,6 +15,5 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 def hasPR() {
 	projects = currentBuild.rawBuild.project.getParent().getItems()
 	for (project in projects) {
-		sh "echo ${project.toString()}"
 	}
 }
