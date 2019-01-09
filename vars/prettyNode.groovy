@@ -1,6 +1,7 @@
 def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 	node(nodeName) {
 		prettyPrintDecorator {
+			hasPR()
 			if (checkoutCode) {
 				checkoutStage()
 				clearChanges()
@@ -10,9 +11,9 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 	}
 }
 
-@NonCPS
-def hasPR() {
+@NonCPS def hasPR() {
 	projects = currentBuild.rawBuild.project.getParent().getItems()
 	for (project in projects) {
+		println project
 	}
 }
