@@ -108,10 +108,10 @@ def getTestSummary() {
         failed = orgfailed
         skipped = orgskipped
 
-        if (env.SLACK_TOTAL) {
-            total = env.SLACK_TOTAL.toInteger() - total 
-            failed = env.SLACK_FAILED.toInteger() - failed 
-            skipped = env.SLACK_SKIPPED.toInteger() - skipped   
+        if (env.SLACK_TOTAL && env.SLACK_TOTAL.toInteger() > 0) {
+            total = orgtotal - env.SLACK_TOTAL.toInteger() 
+            failed = orgfailed - env.SLACK_FAILED.toInteger() 
+            skipped = orgskipped - env.SLACK_SKIPPED.toInteger()   
         }
 
         env.SLACK_TOTAL = orgtotal + ""
