@@ -1,3 +1,5 @@
+import org.jenkinsci.plugins.workflow.job.WorkflowJob
+
 def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 	node(nodeName) {
 		prettyPrintDecorator {
