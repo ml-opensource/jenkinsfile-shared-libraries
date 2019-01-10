@@ -18,7 +18,7 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 }
 
 @NonCPS def hasPR() {
-	projects = currentBuild.rawBuild.project
+	def projects = currentBuild.rawBuild.project
 	retString = projects.getName()
 	return retString
 }
