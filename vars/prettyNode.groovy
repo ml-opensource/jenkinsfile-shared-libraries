@@ -4,7 +4,12 @@ import jenkins.branch.MultiBranchProject;
 import jenkins.scm.api.mixin.ChangeRequestSCMHead2;
 
 def call(String nodeName = "any", Boolean checkoutCode = true, Boolean onlyPR = true, Closure body) {
-	if (!hasPR() && onlyPR) {
+	isWeb = false
+	if (env.IS_WEB == 'true') {
+		isWeb = true 
+	}
+	hasPRJob = hasPR()
+	if (!hasPRJob || (hasPRJob && !onlyPR) || isWeb) {
 		node(nodeName) {
 			prettyPrintDecorator {
 				if (checkoutCode) {
