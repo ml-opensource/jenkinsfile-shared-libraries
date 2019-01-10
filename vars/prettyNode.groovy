@@ -18,10 +18,7 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 }
 
 @NonCPS def hasPR() {
-	projects = currentBuild.rawBuild.project.getParent().getItems()
-	retString = ""
-	for (project in projects) {
-		retString = "1"
-	}
+	projects = currentBuild.rawBuild.project
+	retString = projects.getName()
 	return retString
 }
