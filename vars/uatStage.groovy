@@ -35,7 +35,7 @@ def call(String gitRepo = "", String branch = "", Closure body) {
 		if (slack.getTestSummary() == "No tests found") {
 			currentBuild.result = "UNSTABLE"
 		}
-		extentReportDir = sh script: "find . -name Extent-Report -type d" returnStdout: true
+		extentReportDir = sh(script: "find . -name Extent-Report -type d" returnStdout: true)
 		extentReportDir = extentReportDir.replace("./", "")
 		publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${extentReportDir}", reportFiles: "index.html", reportName: "Extent-Report", reportTitles: ""])
 		slack.uatMessage()
