@@ -1,4 +1,5 @@
 def call(String baseURL) {
+	namedBranches = ["production", "sandbox", "staging", "dev", "master", "develop"]
 	env.BASE_URL = baseURL
 	branchName = env.BRANCH_NAME.replace("-","").replace("_","").replace("/","").toLowerCase()
 	env.RAW_ENV = branchName
@@ -6,11 +7,10 @@ def call(String baseURL) {
 	
 	env.IS_WEB = "true"
 
-	namedBranches = ["production", "sandbox", "staging", "dev"]
 	if (!namedBranches.contains(endpointPrefix)) {
   		target = "dev"
   		if (github.isPR()) {
-  			target = env.CHANGE_TARGET.replace("-","_")
+  			target = env.CHANGE_TARGET.replace("-","_").replace("_","").replace("/","").toLowerCase()
   			if (!namedBranches.contains(target)) {
   				target = "dev"
   			}
@@ -22,7 +22,7 @@ def call(String baseURL) {
 		env.STANDARD_ENV = true
 		env.ENV_TYPE = endpointPrefix
 	}
-	if (endpointPrefix == "production") {
+	if (endpointPrefix == "production" || endpointPrefix == "master") {
 		endpointPrefix = ""
 		env.IS_PRODUCTION = true
 	} else {
