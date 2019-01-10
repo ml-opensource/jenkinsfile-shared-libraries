@@ -21,7 +21,7 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 	projects = currentBuild.rawBuild.project.getParent().getItems()
 	retString = ""
 	for (project in projects) {
-		retString = retString + project.toString()
+		retString = retString + project.getName()
 	}
 	return retString
 }
