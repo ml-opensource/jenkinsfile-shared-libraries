@@ -1,6 +1,11 @@
 def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
 	node(nodeName) {
 		prettyPrintDecorator {
+			try {
+				hasPR()
+			} catch(Throwable t) {
+				println t
+			}
 			if (checkoutCode) {
 				checkoutStage()
 				clearChanges()
