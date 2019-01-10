@@ -10,7 +10,8 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Boolean onlyPR = 
 	}
 	hasPRJob = hasPR()
 	protectedBranches = ["dev","master","production","staging","sandbox"]
-	if (!hasPRJob || (hasPRJob && !onlyPR) || isWeb || protectedBranches.contains(env.BRANCH_NAME)) {
+	isProtectedBranch = protectedBranches.contains(env.BRANCH_NAME) || registerBranches.contains(env.BRANCH_NAME);
+	if (!hasPRJob || (hasPRJob && !onlyPR) || isWeb || isProtectedBranch) {
 		node(nodeName) {
 			prettyPrintDecorator {
 				if (checkoutCode) {
