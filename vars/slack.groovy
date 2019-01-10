@@ -100,23 +100,31 @@ def getTestSummary() {
     def summary = ""
 
     if (testResultAction != null) {
-        orgtotal = testResultAction.getTotalCount()
-        orgfailed = testResultAction.getFailCount()
-        orgskipped = testResultAction.getSkipCount()
+        total = orgtotal = testResultAction.getTotalCount()
+        failed = orgfailed = testResultAction.getFailCount()
+        skipped = orgskipped = testResultAction.getSkipCount()
 
-        total = orgtotal
-        failed = orgfailed
-        skipped = orgskipped
+        println "ENV ${env.SLACK_TEST_TOTAL}"
+        println "Total ${total}"
+        println "Total ${orgtotal}"
 
-        if (env.SLACK_TOTAL && env.SLACK_TOTAL.toInteger() > 0) {
-            total = orgtotal - env.SLACK_TOTAL.toInteger() 
-            failed = orgfailed - env.SLACK_FAILED.toInteger() 
-            skipped = orgskipped - env.SLACK_SKIPPED.toInteger()   
+        if (env.SLACK_TEST_TOTAL && env.SLACK_TEST_TOTAL.toInteger() > 0) {
+            total = orgtotal - env.SLACK_TEST_TOTAL.toInteger() 
+            failed = orgfailed - env.SLACK_TEST_FAILED.toInteger() 
+            skipped = orgskipped - env.SLACK_TEST_SKIPPED.toInteger()   
         }
 
-        env.SLACK_TOTAL = orgtotal + ""
-        env.SLACK_FAILED = orgfailed + ""
-        env.SLACK_SKIPPED = orgskipped + ""
+        println "ENV ${env.SLACK_TEST_TOTAL}"
+        println "Total ${total}"
+        println "Total ${orgtotal}"
+
+        env.SLACK_TEST_TOTAL="${orgtotal}"
+        env.SLACK_TEST_FAILED="${orgfailed}"
+        env.SLACK_TEST_SKIPPED="${orgskipped}"
+
+        println "ENV ${env.SLACK_TEST_TOTAL}"
+        println "Total ${total}"
+        println "Total ${orgtotal}"
 
         summary = "Passed: " + (total - failed - skipped)
         summary = summary + (", Failed: " + failed)
