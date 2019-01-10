@@ -3,6 +3,8 @@ def call(String baseURL) {
 	branchName = env.BRANCH_NAME.replace("-","").replace("_","").replace("/","").toLowerCase()
 	env.RAW_ENV = branchName
 	endpointPrefix = branchName
+	
+	env.IS_WEB = "true"
 
 	namedBranches = ["production", "sandbox", "staging", "dev"]
 	if (!namedBranches.contains(endpointPrefix)) {
