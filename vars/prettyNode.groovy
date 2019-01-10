@@ -3,20 +3,19 @@ import jenkins.branch.BranchProjectFactory;
 import jenkins.branch.MultiBranchProject;
 import jenkins.scm.api.mixin.ChangeRequestSCMHead2;
 
-def call(String nodeName = "any", Boolean checkoutCode = true, Closure body) {
-	node(nodeName) {
-		prettyPrintDecorator {
-			try {
-				println hasPR()
-			} catch(Throwable t) {
-				println t
+def call(String nodeName = "any", Boolean checkoutCode = true, Boolean onlyPR = true, Closure body) {
+	if (!hasPR() && onlyPR) {
+		node(nodeName) {
+			prettyPrintDecorator {
+				if (checkoutCode) {
+					checkoutStage()
+					clearChanges()
+				}
+				body()
 			}
-			if (checkoutCode) {
-				checkoutStage()
-				clearChanges()
-			}
-			body()
 		}
+	} else {
+		println "PR Found not building this branch"
 	}
 }
 
