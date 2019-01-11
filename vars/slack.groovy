@@ -95,6 +95,11 @@ def getArtifacts() {
     return summary
 }
 
+def hasTest() {
+    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+    return testResultAction != null
+}
+
 def getTestSummary() {
     def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
     def summary = ""
