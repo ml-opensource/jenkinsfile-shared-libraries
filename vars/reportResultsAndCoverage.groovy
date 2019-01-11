@@ -43,7 +43,7 @@ def call(Closure body = null) {
 	} catch (Exception e) {
 	}
 
-	if (slack.hasTest()) {
+	if (!slack.hasTest()) {
 		currentBuild.result = "UNSTABLE"
 	}
 }
