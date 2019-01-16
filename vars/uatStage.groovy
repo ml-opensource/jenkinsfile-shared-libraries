@@ -32,7 +32,7 @@ def call(String gitRepo = "", String branch = "", Closure body) {
 		} catch (Exception e) {
 			throw e
 		}
-		if (slack.getTestSummary() == "No tests found") {
+		if (!slack.hasTest()) {
 			currentBuild.result = "UNSTABLE"
 		}
 		extentReportDir = sh(script: "find . -name Extent-Report -type d", returnStdout: true)
