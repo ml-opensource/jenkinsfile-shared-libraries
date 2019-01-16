@@ -287,7 +287,7 @@ def linkMessage(String inURL) {
 }
 
 def testMessage() {
-	def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}"
+	def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
 	def failedTest = getFailedTests()
 	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
 	def coverageSummary = "_*Code Coverage*_\n" + getCoverageSummary() + "\n"
