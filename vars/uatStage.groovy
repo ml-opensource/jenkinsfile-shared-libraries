@@ -37,7 +37,8 @@ def call(String gitRepo = "", String branch = "", Closure body) {
 		}
 		extentReportDir = sh(script: "find . -name Extent-Report -type d", returnStdout: true)
 		extentReportDir = extentReportDir.replace("./", "")
-		publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${extentReportDir}", reportFiles: "index.html", reportName: "Extent-Report", reportTitles: ""])
+		extentReportHtml = sh(script: "ls ${extentReportDir}", returnStdout: true)
+		publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${extentReportDir}", reportFiles: "${extentReportHtml}", reportName: "Extent-Report", reportTitles: ""])
 		slack.uatMessage()
 	}
 }
