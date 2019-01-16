@@ -14,7 +14,7 @@ def call(String gitRepo = "", String branch = "", String artifactName = "app.zip
 			echo "${currentBuild.fullProjectName}"
 			try {
 				artifactLocalName = artifactName
-				if (env.JOB_NAME.contains("android")) {
+				if (env.JOB_NAME.contains("android") && artifactName == "app.zip") {
 					artifactLocalName = "app-debug.apk"
 				}
 				
