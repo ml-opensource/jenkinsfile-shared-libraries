@@ -305,7 +305,7 @@ def testMessage() {
 }
 
 def uatMessage() {
-    def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}"
+    def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
     def failedTest = getFailedTests()
     def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
     def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Reports/" + "\n"
