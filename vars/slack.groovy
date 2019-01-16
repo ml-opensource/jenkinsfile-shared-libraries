@@ -112,13 +112,9 @@ def getTestSummary() {
 	total = testResultAction.getTotalCount()
         failed = testResultAction.getFailCount()
         skipped = testResultAction.getSkipCount()
-	    
-	println "ENV ${env.SLACK_TEST_TOTAL}"
-        println "Total ${total}"
 
         if (env.SLACK_TEST_TOTAL && env.SLACK_TEST_TOTAL.toInteger() > 0) {
 	    total = orgtotal - env.SLACK_TEST_TOTAL.toInteger()
-	    println "Total2 ${total}"
             failed = orgfailed - env.SLACK_TEST_FAILED.toInteger() 
             skipped = orgskipped - env.SLACK_TEST_SKIPPED.toInteger()   
         }
