@@ -1,4 +1,4 @@
-def call(String gitRepo = "", String branch = "", Closure body) {
+def call(String gitRepo = "", String branch = "", String artifactName = "app.zip", Closure body) {
 	stage("UAT") {
 		folderName = ""
 		folderPath = ""
@@ -13,7 +13,12 @@ def call(String gitRepo = "", String branch = "", Closure body) {
 
 			echo "${currentBuild.fullProjectName}"
 			try {
-				copyArtifacts filter: 'app.zip', projectName: "${currentBuild.fullProjectName}", selector: specific("${env.BUILD_NUMBER}"), target: "${folderName}"
+				artifactLocalName = artifactName
+				if (env.JOB_NAME.contains("android")) {
+					artifactLocalName = "app-debug.apk"
+				}
+				
+				copyArtifacts filter: "${artifactLocalName}", projectName: "${currentBuild.fullProjectName}", selector: specific("${env.BUILD_NUMBER}"), target: "${folderName}"
 			} catch (Throwable t) {
 
 			}
