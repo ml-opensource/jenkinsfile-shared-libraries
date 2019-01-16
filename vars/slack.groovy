@@ -287,7 +287,7 @@ def linkMessage(String inURL) {
 }
 
 def testMessage() {
-	def slackHeader = slackHeader()
+	def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}"
 	def failedTest = getFailedTests()
 	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
 	def coverageSummary = "_*Code Coverage*_\n" + getCoverageSummary() + "\n"
@@ -305,7 +305,7 @@ def testMessage() {
 }
 
 def uatMessage() {
-    def slackHeader = slackHeader()
+    def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}"
     def failedTest = getFailedTests()
     def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
     def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Reports/" + "\n"
