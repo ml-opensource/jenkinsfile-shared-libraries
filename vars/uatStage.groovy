@@ -18,7 +18,7 @@ def call(String gitRepo = "", String branch = "", String artifactName = "app.zip
 					artifactLocalName = "app-debug.apk"
 				}
 				
-				copyArtifacts filter: "${artifactLocalName}", projectName: "${currentBuild.fullProjectName}", selector: specific("${env.BUILD_NUMBER}"), target: "${folderName}"
+				copyArtifacts filter: "${artifactLocalName}", flatten: true, projectName: "${currentBuild.fullProjectName}", selector: specific("${env.BUILD_NUMBER}"), target: "${folderName}"
 			} catch (Throwable t) {
 
 			}
