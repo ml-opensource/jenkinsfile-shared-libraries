@@ -308,7 +308,7 @@ def uatMessage() {
     def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
     def failedTest = getFailedTests()
     def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
-    def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Reports/" + "\n"
+    def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Report/" + "\n"
     if (env.TEST_RAIL_ID) {
         def testRailURL = "https://fuzz.testrail.io/index.php?/runs/overview/${env.TEST_RAIL_ID}" 
     }
