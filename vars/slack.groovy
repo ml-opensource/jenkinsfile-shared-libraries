@@ -239,7 +239,8 @@ def slackHeader() {
 }
 
 def sendSlackError(Exception e, String message) {
-	if (!(e instanceof InterruptedException)) {
+	if (!(e instanceof InterruptedException) && env.SLACK_CHANNEL_NOTIFIED != "true") {
+        env.SLACK_CHANNEL_NOTIFIED = "true"
         def logs = currentBuild.rawBuild.getLog(200)
         def logsToPrint = []
         def addToLogs = false
