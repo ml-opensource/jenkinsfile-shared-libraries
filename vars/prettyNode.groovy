@@ -12,14 +12,19 @@ def call(String nodeName = "any", Boolean checkoutCode = true, Boolean onlyPR = 
 	protectedBranches = ["dev","master","production","staging","sandbox"]
 	isProtectedBranch = protectedBranches.contains(env.BRANCH_NAME) || registerBranches.contains(env.BRANCH_NAME);
 	if (!hasPRJob || (hasPRJob && !onlyPR) || isWeb || isProtectedBranch) {
-		node(nodeName) {
-			prettyPrintDecorator {
-				if (checkoutCode) {
-					checkoutStage()
-					clearChanges()
+		try {
+			node(nodeName) {
+				prettyPrintDecorator {
+					if (checkoutCode) {
+						checkoutStage()
+						clearChanges()
+					}
+					body()
 				}
-				body()
 			}
+		} catch(Throwable e) {
+			slack.sendSlackError(e, "Unknown failure detected during _*Stage ${env.STAGE_NAME}*_")
+        	throw e
 		}
 	} else {
 		println "PR Found not building this branch"
