@@ -114,7 +114,7 @@ def getTestSummary() {
         skipped = testResultAction.getSkipCount()
 
         if (env.SLACK_TEST_TOTAL && env.SLACK_TEST_TOTAL.toInteger() > 0) {
-            total = orgtotal - env.SLACK_TEST_TOTAL.toInteger() 
+	    total = orgtotal - env.SLACK_TEST_TOTAL.toInteger()
             failed = orgfailed - env.SLACK_TEST_FAILED.toInteger() 
             skipped = orgskipped - env.SLACK_TEST_SKIPPED.toInteger()   
         }
@@ -288,7 +288,7 @@ def linkMessage(String inURL) {
 }
 
 def testMessage() {
-	def slackHeader = slackHeader()
+	def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
 	def failedTest = getFailedTests()
 	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
 	def coverageSummary = "_*Code Coverage*_\n" + getCoverageSummary() + "\n"
@@ -306,10 +306,10 @@ def testMessage() {
 }
 
 def uatMessage() {
-    def slackHeader = slackHeader()
+    def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
     def failedTest = getFailedTests()
     def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
-    def reportMessage = "_*Report*_\n" + env.BUILD_URL + "Extent-Reports/" + "\n"
+    def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Report/" + "\n"
     if (env.TEST_RAIL_ID) {
         def testRailURL = "https://fuzz.testrail.io/index.php?/runs/overview/${env.TEST_RAIL_ID}" 
     }

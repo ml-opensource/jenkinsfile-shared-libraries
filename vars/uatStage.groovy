@@ -1,4 +1,4 @@
-def call(String gitRepo = "", String branch = "", Closure body) {
+def call(String gitRepo = "", String branch = "", String artifactName = "app.zip", Closure body) {
 	stage("UAT") {
 		folderName = ""
 		folderPath = ""
@@ -13,7 +13,12 @@ def call(String gitRepo = "", String branch = "", Closure body) {
 
 			echo "${currentBuild.fullProjectName}"
 			try {
-				copyArtifacts filter: 'app.zip', projectName: "${currentBuild.fullProjectName}", selector: specific("${env.BUILD_NUMBER}"), target: "${folderName}"
+				artifactLocalName = artifactName
+				if (env.JOB_NAME.contains("android") && artifactName == "app.zip") {
+					artifactLocalName = "app-debug.apk"
+				}
+				
+				copyArtifacts filter: "${artifactLocalName}", flatten: true, projectName: "${currentBuild.fullProjectName}", selector: specific("${env.BUILD_NUMBER}"), target: "${folderName}"
 			} catch (Throwable t) {
 
 			}
@@ -32,12 +37,13 @@ def call(String gitRepo = "", String branch = "", Closure body) {
 		} catch (Exception e) {
 			throw e
 		}
-		if (slack.getTestSummary() == "No tests found") {
+		if (!slack.hasTest()) {
 			currentBuild.result = "UNSTABLE"
 		}
-		extentReportDir = sh(script: "find . -name Extent-Report -type d" returnStdout: true)
+		extentReportDir = sh(script: "find . -name Extent-Report -type d", returnStdout: true)
 		extentReportDir = extentReportDir.replace("./", "")
-		publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${extentReportDir}", reportFiles: "index.html", reportName: "Extent-Report", reportTitles: ""])
+		extentReportHtml = sh(script: "ls ${extentReportDir}", returnStdout: true)
+		publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: "${extentReportDir}", reportFiles: "${extentReportHtml}", reportName: "Extent-Report", reportTitles: ""])
 		slack.uatMessage()
 	}
 }

@@ -3,7 +3,7 @@ import jenkins.branch.BranchProjectFactory;
 import jenkins.branch.MultiBranchProject;
 import jenkins.scm.api.mixin.ChangeRequestSCMHead2;
 
-def call(String nodeName = "any", Boolean checkoutCode = true, Boolean onlyPR = true, Closure body) {
+def call(String nodeName = "", Boolean checkoutCode = true, Boolean onlyPR = true, Closure body) {
 	isWeb = false
 	if (env.IS_WEB == 'true') {
 		isWeb = true 
