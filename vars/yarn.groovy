@@ -20,7 +20,7 @@ def build(Closure body = null) {
 	}
 }
 
-def run(String extras = "", Closure body = null) {
+def run_c(String extras = "", Closure body = null) {
 	yarn "run ${extras}" 
 }
 
