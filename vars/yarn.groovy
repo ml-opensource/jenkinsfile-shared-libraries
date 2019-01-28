@@ -20,6 +20,10 @@ def build(Closure body = null) {
 	}
 }
 
+def run(String extras = "", Closure body = null) {
+	yarn "run ${extras}" 
+}
+
 def test(String extras = "", Closure body = null) {
 	yarn "test ${extras}" 
 }
