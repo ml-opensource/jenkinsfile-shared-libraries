@@ -33,7 +33,17 @@ def setup(String nodeVersion = 'node', Closure body = null) {
 		bash "nvm install ${nodeVersion}"
 		bash 'curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -'
 		bash 'echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
-		bash 'sudo apt-get update && sudo apt-get install yarn -y'
+		yarnInstallWorked = false
+		failureCount = 0
+		while (!yarnInstallWorked && failureCount<10) {
+			try {
+				bash 'sudo apt-get update && sudo apt-get install yarn -y'
+				yarnInstallWorked = true
+			} catch(Throwable e) {
+				failureCount++
+				sleep 20
+			}
+		}
 		sh 'rm -rf dist || echo "Done"'
 		sh 'rm -rf node_modules || echo "Done"'
 		if (body != null) {
