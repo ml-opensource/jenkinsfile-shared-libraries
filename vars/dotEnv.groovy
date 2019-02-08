@@ -24,3 +24,12 @@ def withPrefix(String envFile, String starting = '', Closure body = null) {
 		sh "rm ${starting}.env"
 	}
 }
+
+def atPath(String envFile, String filePath = '', Closure body = null) {
+	withCredentials([file(credentialsId: "${envFile}", variable: 'ENVFILE')]) {
+		sh "mv $ENVFILE ${filePath}/.env"
+		sh "chmod 600 ${filePath}/.env"
+		body()
+		sh "rm ${filePath}/.env"
+	}
+}
