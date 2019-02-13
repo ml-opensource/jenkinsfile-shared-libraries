@@ -33,7 +33,8 @@ def call(String gitRepo = "", String branch = "", String artifactName = "app.zip
 		}
 		try {
 			//Test Reporting
-			junit allowEmptyResults: true, testResults: "${folderPath}**/*.junit, ${folderPath}**/junit-reports/*.xml, ${folderPath}**/test-results/**/*.xml, ${folderPath}**/TEST*.xml, ${folderPath}**/*junit.xml, ${folderPath}**/testng-results.xml"
+			//${folderPath}**/*.junit, ${folderPath}**/junit-reports/*.xml, ${folderPath}**/junitreports/*.xml, ${folderPath}**/test-results/**/*.xml, ${folderPath}**/*junit.xml, 
+			junit allowEmptyResults: true, testResults: "${folderPath}**/testng-results.xml"
 		} catch (Exception e) {
 			throw e
 		}
