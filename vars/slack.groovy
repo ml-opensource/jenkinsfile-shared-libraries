@@ -109,12 +109,12 @@ def getTestSummary() {
         orgfailed = testResultAction.getFailCount()
         orgskipped = testResultAction.getSkipCount()
 	    
-	total = testResultAction.getTotalCount()
+        total = testResultAction.getTotalCount()
         failed = testResultAction.getFailCount()
         skipped = testResultAction.getSkipCount()
 
         if (env.SLACK_TEST_TOTAL && env.SLACK_TEST_TOTAL.toInteger() > 0) {
-	    total = orgtotal - env.SLACK_TEST_TOTAL.toInteger()
+            total = orgtotal - env.SLACK_TEST_TOTAL.toInteger()
             failed = orgfailed - env.SLACK_TEST_FAILED.toInteger() 
             skipped = orgskipped - env.SLACK_TEST_SKIPPED.toInteger()   
         }
@@ -303,6 +303,23 @@ def testMessage() {
 		slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
 		slackSend color: 'warning', channel: slackChannel, message: failedTest
 	}
+}
+
+def sendNestStatus() {
+    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+    projectSuccessful = true
+    if (testResultAction != null) {
+        if (testResultAction.getFailCount() > 0) {
+            projectSuccessful = false  
+        }
+    }
+
+    if (projectSuccessful) {
+        slackSend color: 'good', channel: slackChannel, message: "Nest Security Status Updated" 
+    } else {
+        slackSend color: 'good', channel: slackChannel, message: "@here Nest failed to update security status" 
+    }
+
 }
 
 def uatMessage() {
