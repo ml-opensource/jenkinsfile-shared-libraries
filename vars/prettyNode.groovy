@@ -23,11 +23,24 @@ def call(String nodeName = "", Boolean checkoutCode = true, Boolean onlyPR = tru
 				}
 			}
 		} catch(Throwable e) {
-			slack.sendSlackError(e, "Unknown failure detected during _*Stage ${env.STAGE_NAME}*_")
+			if (isMultibranch()) {
+				slack.sendSlackError(e, "Unknown failure detected during _*Stage ${env.STAGE_NAME}*_")
+			}
         	throw e
 		}
 	} else {
 		println "PR Found not building this branch"
+	}
+}
+
+@NonCPS def isMultibranch() {
+	try {
+		def parent = currentBuild.rawBuild.project.getParent()
+		def items = parent.getItems()
+		def projectFactory = ((MultiBranchProject) parent).getProjectFactory()
+		return true
+	} catch (Exception e) {
+		return false
 	}
 }
 
@@ -50,7 +63,7 @@ def call(String nodeName = "", Boolean checkoutCode = true, Boolean onlyPR = tru
 			}
 		}
 	} catch(Exception e) {
-		
+
 	}
 	return false
 }
