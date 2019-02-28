@@ -32,21 +32,25 @@ def call(String nodeName = "", Boolean checkoutCode = true, Boolean onlyPR = tru
 }
 
 @NonCPS def hasPR() {
-	def parent = currentBuild.rawBuild.project.getParent()
-	def items = parent.getItems()
-	def projectFactory = ((MultiBranchProject) parent).getProjectFactory()
-	retString = ""
-	for (item in items) {
-		if (projectFactory.isProject(item)) {
-			def branch = projectFactory.getBranch(item);
-			def head = branch.getHead();
-			if (head instanceof ChangeRequestSCMHead2) {
-				branchName = ((ChangeRequestSCMHead2) head).getOriginName();
-				if (branchName.equals(env.BRANCH_NAME)) {
-					return true
+	try {
+		def parent = currentBuild.rawBuild.project.getParent()
+		def items = parent.getItems()
+		def projectFactory = ((MultiBranchProject) parent).getProjectFactory()
+		retString = ""
+		for (item in items) {
+			if (projectFactory.isProject(item)) {
+				def branch = projectFactory.getBranch(item);
+				def head = branch.getHead();
+				if (head instanceof ChangeRequestSCMHead2) {
+					branchName = ((ChangeRequestSCMHead2) head).getOriginName();
+					if (branchName.equals(env.BRANCH_NAME)) {
+						return true
+					}
 				}
 			}
 		}
+	} catch(Exception e) {
+		
 	}
 	return false
 }
