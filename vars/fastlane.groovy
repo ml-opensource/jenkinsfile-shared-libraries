@@ -20,6 +20,10 @@ def install_certs(Closure body = null) {
 	}
 }
 
+def pull_secrets(Closure body = null) {
+	fastlane 'pull_secrets'
+}
+
 def install_dependencies(Closure body = null) {
 	stage("Dependencies") {
 		if (body != null) {
