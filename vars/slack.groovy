@@ -309,7 +309,7 @@ def testMessage() {
 	}
 }
 
-def sendNestStatus() {
+def isProjectSuccessful() {
     def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
     projectSuccessful = true
     if (testResultAction != null) {
@@ -317,8 +317,11 @@ def sendNestStatus() {
             projectSuccessful = false  
         }
     }
+    return projectSuccessful;
+}
 
-    if (projectSuccessful) {
+def sendNestStatus() {
+    if (isProjectSuccessful()) {
         slackSend color: 'good', channel: slackChannel, message: "Nest Security Status Updated" 
     } else {
         slackSend color: 'danger', channel: slackChannel, message: "@here Nest failed to update security status" 
