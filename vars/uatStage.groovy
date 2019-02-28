@@ -47,7 +47,7 @@ def call(String gitRepo = "", String branch = "", String artifactName = "app.zip
  *
  * @param folderPath common ancestor of wherever the JUnit testResults are placed
  */
-def reportExtents(String folderPath) {
+def reportExtents(String folderPath = "") {
 	try {
 		//Test Reporting
 		//${folderPath}**/*.junit, ${folderPath}**/junit-reports/*.xml, ${folderPath}**/junitreports/*.xml, ${folderPath}**/test-results/**/*.xml, ${folderPath}**/*junit.xml,
