@@ -1,11 +1,7 @@
-def call(Boolean isAutomation = false, Closure body) {
+def call(Closure body) {
 	stage("Test") {
 		body()
 		reportResultsAndCoverage()
-		if (isAutomation) {
-			slack.uatMessage()
-		} else {
-			slack.testMessage()
-		}
+		slack.testMessage()
 	}
 }
