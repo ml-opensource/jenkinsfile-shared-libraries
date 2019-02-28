@@ -317,7 +317,7 @@ def sendNestStatus() {
     if (projectSuccessful) {
         slackSend color: 'good', channel: slackChannel, message: "Nest Security Status Updated" 
     } else {
-        slackSend color: 'good', channel: slackChannel, message: "@here Nest failed to update security status" 
+        slackSend color: 'danger', channel: slackChannel, message: "@here Nest failed to update security status" 
     }
 
 }
