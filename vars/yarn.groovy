@@ -52,7 +52,7 @@ def setup(String nodeVersion = 'node', Closure body = null) {
 	}
 }
 
-def installAndSetup() {
-	setup()
+def installAndSetup(String nodeVersion = 'node') {
+	setup(nodeVersion)
 	install()
 }
