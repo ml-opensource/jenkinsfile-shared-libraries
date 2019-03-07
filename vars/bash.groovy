@@ -15,6 +15,8 @@
  *
  * @param command arbitrary commands. Coreutils should be available
  * @return nothing
+ * @see slack#qsh
+ * @see slack#qbash
  */
 def call(String command) {
     sh "#!/bin/bash\n source ~/.bash_profile \n  ${command}"
