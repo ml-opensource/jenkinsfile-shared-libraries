@@ -1,3 +1,20 @@
+/**
+ * This method runs the following code quality checks:
+ * <ul>
+ *     <li>Checkstyle</li>
+ *     <li><a href="https://pmd.github.io/">PMD</a></li>
+ *     <li>DRY</li>
+ *     <li>OpenTasks</li>
+ *     <li><a href="https://dwheeler.com/sloccount/">SLOCCount</a></li>
+ * </ul>
+ * All exceptions that these might trigger are fully ignored.
+ * <p>
+ *     Android projects may wish to also take advantage of our support
+ *     for {@link androidBuildScriptInject#call late-binding gradle scripts}.
+ * </p>
+ *
+ * @return nothing
+ */
 def call() {
 	try {
 		//Android Lint and Lizard
