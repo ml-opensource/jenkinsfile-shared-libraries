@@ -32,7 +32,7 @@ def setup(String nodeVersion = 'node', Closure body = null) {
 	stage("Configure Environment") {
 		bash "nvm install ${nodeVersion}"
 		if (nodeVersion != 'node') {
-			bash "nvm use ${nodeVersion}"
+			bash "nvm alias default ${nodeVersion}"
 		}
 		bash 'curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -'
 		bash 'echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
