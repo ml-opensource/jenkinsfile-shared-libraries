@@ -1,5 +1,5 @@
 def call(String baseURL) {
-	namedBranches = ["production", "sandbox", "staging", "dev", "master", "develop"]
+	namedBranches = ["production", "sandbox", "staging", "dev", "master", "develop", "qa"]
 	env.BASE_URL = baseURL
 	branchName = env.BRANCH_NAME.replace("-","").replace("_","").replace("/","").toLowerCase()
 	env.RAW_ENV = branchName
