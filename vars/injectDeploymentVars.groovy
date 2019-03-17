@@ -1,3 +1,16 @@
+/**
+ * Define a bunch of environment variables for other scripts to use.
+ * <p>
+ *     You can retrieve these later with calls to e.g. 'env.BASE_URL'.
+ *     Note that this method always defines 'env.IS_WEB' as true - non-web
+ *     projects are asked to use alternative build scripts.
+ * </p>
+ *
+ * @param baseURL representation of what, precisely, is being handled by Jenkins
+ * here
+ * @return nothing
+ * @see publishLink#call
+ */
 def call(String baseURL) {
 	namedBranches = ["production", "sandbox", "staging", "dev", "master", "develop", "qa"]
 	env.BASE_URL = baseURL

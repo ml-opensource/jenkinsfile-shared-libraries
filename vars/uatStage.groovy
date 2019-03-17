@@ -1,3 +1,42 @@
+/**
+ * <h1>Run tests from repository A over artifacts from build B.</h1>
+ * <p>
+ *     <h2>If gitRepo is left empty (its default value), this method</h2>
+ *     <ol>
+ *         <li>ignores gitRepo, branch, and artifactName parameters</li>
+ *         <li>runs <code>body()</code></li>
+ *         <li>{@link uatStage#reportExtents reports on extents}</li>
+ *     </ol>
+ *     within a dedicated Stage. The current repository is A and
+ *     B is undefined. This is a good choice if the artifact you
+ *     wish to test is not (yet) associated with a Jenkins Job.
+ * </p>
+ * <p>
+ *     <h2>If gitRepo is given the name of a repository, this method</h2>
+ *     <ol>
+ *         <li>{@link git#clone clones} that repository</li>
+ *         <li>checks out <code>branch</code> (if it exists)</li>
+ *         <li>copies an artifact from build B into the newly-cloned folder</li>
+ *         <li>runs <code>body()</code> within the context of that folder</li>
+ *         <li>{@link uatStage#reportExtents reports on extents}</li>
+ *     </ol>
+ *     within a dedicated Stage. The gitRepo repository is A, and
+ *     the current build is B. This is the form of execution that
+ *     non-automation Jenkinsfiles should use.
+ * </p>
+ * <p>
+ *     <h2>UAT Best Practices</h2>
+ *     Try to limit this testing phase to black box tests. More
+ *     invasive tests should be run with {@link testStage#call} or
+ *     directly through e.g. {@link bash#call}.
+ * </p>
+ *
+ * @param gitRepo      url for repository A
+ * @param branch       branch in repository A to use
+ * @param artifactName name of an artifact on build B to test
+ * @param body         arbitrary code to run right before {@link uatStage#reportExtents}
+ * @return nothing
+ */
 def call(String gitRepo = "", String branch = "", String artifactName = "app.zip", Closure body) {
 	stage("UAT") {
 		folderName = ""
