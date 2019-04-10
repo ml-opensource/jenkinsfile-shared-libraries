@@ -63,7 +63,7 @@ def call(Closure body = null) {
 		//Clover
 		step([
     		$class: 'CloverPublisher',
-    		cloverReportDir: '/var/lib/docker/volumes/*var_www_app/_data/',
+    		cloverReportDir: '/var/lib/docker/volumes/*var_www_app/_data',
     		cloverReportFileName: 'clover.xml',
     		healthyTarget: [methodCoverage: 70, conditionalCoverage: 80, statementCoverage: 80], // optional, default is: method=70, conditional=80, statement=80
     		unhealthyTarget: [methodCoverage: 50, conditionalCoverage: 50, statementCoverage: 50], // optional, default is none
