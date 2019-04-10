@@ -60,6 +60,7 @@ def call(Closure body = null) {
 	}
 
 	try {
+<<<<<<< HEAD
 		//Clover
 		step([
     		$class: 'CloverPublisher',
@@ -73,6 +74,8 @@ def call(Closure body = null) {
 	}
 
 	try {
+=======
+>>>>>>> parent of c65c7fe... adding docker volume location for var www app locations
 		//Rcov	
 		step([$class: 'RcovPublisher', targets: []])						
 	} catch (Exception e) {
