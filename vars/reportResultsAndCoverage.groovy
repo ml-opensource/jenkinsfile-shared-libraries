@@ -60,22 +60,6 @@ def call(Closure body = null) {
 	}
 
 	try {
-<<<<<<< HEAD
-		//Clover
-		step([
-    		$class: 'CloverPublisher',
-    		cloverReportDir: '/var/lib/docker/volumes/*var_www_app/_data',
-    		cloverReportFileName: 'clover.xml',
-    		healthyTarget: [methodCoverage: 70, conditionalCoverage: 80, statementCoverage: 80], // optional, default is: method=70, conditional=80, statement=80
-    		unhealthyTarget: [methodCoverage: 50, conditionalCoverage: 50, statementCoverage: 50], // optional, default is none
-    		failingTarget: [methodCoverage: 0, conditionalCoverage: 0, statementCoverage: 0]     // optional, default is none
-  		])			
-	} catch (Exception e) {
-	}
-
-	try {
-=======
->>>>>>> parent of c65c7fe... adding docker volume location for var www app locations
 		//Rcov	
 		step([$class: 'RcovPublisher', targets: []])						
 	} catch (Exception e) {
