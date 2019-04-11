@@ -435,7 +435,7 @@ def jobName() {
 	def job = "${env.JOB_NAME}"
 	def splits = job.split("/")
     if (splits.length > 1) {
-	   def jobName = splits[1] + "/" + splits[2]
+	   def jobName = splits[splits.length - 2] + "/" + splits[splits.length - 1]
 	   return jobName
     } else {
         return job;
