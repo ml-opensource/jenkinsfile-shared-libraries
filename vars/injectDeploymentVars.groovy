@@ -32,6 +32,7 @@ def call(String baseURL) {
   		env.STANDARD_ENV = false
   		env.ENV_TYPE = "branch"
 	} else {
+		env.CLEAN_ENV = branchName
 		env.STANDARD_ENV = true
 		env.ENV_TYPE = endpointPrefix
 	}
