@@ -42,8 +42,8 @@ def deploy(String cluster = 'dev', String config = 'default') {
 
 def run(String command, String service, String cluster = 'dev', String config = 'default') {
 	if (config == 'default') {
-		slack.qbash "ufo task run --command '${command}' --cluster ${cluster} --service ${service} --timeout 10"
+		slack.qbash "ufo task run --command '${command}' --cluster ${cluster} --service ${service}"
 	} else {
-		slack.qbash "ufo task run --command '${command}' --cluster ${cluster} --service ${service} --config ${config} --timeout 10"
+		slack.qbash "ufo task run --command '${command}' --cluster ${cluster} --service ${service} --config ${config}"
 	}
 }
