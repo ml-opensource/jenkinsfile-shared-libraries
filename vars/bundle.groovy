@@ -40,3 +40,7 @@ def install() {
 def rake(String command = "") {
 	slack.qbash "bundle exec rake ${command}"
 }
+
+def exec(String command = "") {
+	slack.qbash "bundle exec ${command}"
+}
