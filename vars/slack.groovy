@@ -311,7 +311,7 @@ def getCoverageSummary() {
         	summary = "No Coverage Data"
         }
     } else if (cloverCoverageAction != null) {
-        def coverageData = coverageAction.getResult()
+        def coverageData = cloverCoverageAction.getResult()
         if (coverageData != null) {
             summary = "Lines Covered: " + coverageData.getStatementCoverage().getPercentageStr()
         }
