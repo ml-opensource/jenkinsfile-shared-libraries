@@ -544,9 +544,15 @@ def sendSlackError(Exception e, String message) {
                 logsToPrint.add(logString)
             }
         } 
+
+        if (logsToPrint.size() == 0) {
+            logsToPrint = currentBuild.rawBuild.getLog(20)
+        }
         logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
 		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message
-        slackSend color: 'danger', channel: slackChannel, message:"```${logsString}```"  
+        slackSend color: 'danger', channel: slackChannel, message:"```${logsString}```"
+
+        slackSend color: 'danger', channel: "jenkins_notifications", message:slackHeader() + "${e}"  
 	}
 }
 
