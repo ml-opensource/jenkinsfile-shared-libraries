@@ -22,7 +22,6 @@ import groovy.transform.Field
  * @return either env.SLACK_CHANNEL (if present) or "jenkins_notifications"
  */
 def getSlackChannel() {
-    echo "${env.SLACK_CHANNEL}"
     if (env.SLACK_CHANNEL) {
         return env.SLACK_CHANNEL
     } else {
@@ -522,32 +521,31 @@ def slackHeader() {
 def sendSlackError(Exception e, String message) {
 	if (!(e instanceof InterruptedException) && env.SLACK_CHANNEL_NOTIFIED != "true") {
         env.SLACK_CHANNEL_NOTIFIED = "true"
-        def logs = currentBuild.rawBuild.getLog(200)
+        def logs = currentBuild.rawBuild.getLog(200).reverse()
         def logsToPrint = []
-        def addToLogs = false
+        def addToLogs = true
         for(String logString : logs) {
-            if (logString) {
-                if (logString.contains("fastlane finished with errors")) {
-                    addToLogs = true
-                } else if (logString.contains("FAILURE: Build failed with an exception.")) {
-                    addToLogs = true    
+            if (logString.contains("from /Users")) { //iOS Ruby Exceptions
+            } else if(logString.contains("fastlane finished with errors")) {
+                if (logsToPrint.size() > 0) {
+                    addToLogs = false    
                 }
-            }
-            if (addToLogs) {
-                if (logString.contains("from /Users") && logString.contains("gems/fastlane") && logString.contains("lib/fastlane_core")) {
-                    addToLogs = false
-                } else if (logString.contains("* Exception is:")) {
-                    addToLogs = false
+            } else if(logString.contains("[Pipeline]")) { //Jenkins Pipeline Info
+                if (logsToPrint.size() > 0) {
+                    addToLogs = false    
                 }
-            }
-            if (addToLogs) {
-                logsToPrint.add(logString)
+            } else if (logString.contains("at ") && (logString.contains(".java") || logString.contains(".kt") || logString.contains(".groovy"))) { //Gradle Exceptions
+            } else if (logString.contains("FAILURE: Build failed with an exception")) {
+                if (logsToPrint.size() > 0) {
+                    addToLogs = false    
+                }
+            } else {
+                if (addToLogs) {
+                    logsToPrint.add(logString)
+                }
             }
         } 
-
-        if (logsToPrint.size() == 0) {
-            logsToPrint = currentBuild.rawBuild.getLog(20)
-        }
+        logsToPrint = logsToPrint.reverse()
         logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
 		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message
         slackSend color: 'danger', channel: slackChannel, message:"```${logsString}```"
