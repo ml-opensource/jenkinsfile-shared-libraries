@@ -9,6 +9,9 @@ import com.fuzz.artifactstore.ArtifactStoreAction
 import com.fuzz.artifactstore.ArtifactStore
 import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
+import hudson.plugins.clover.CloverBuildAction
+import hudson.plugins.clover.results.ProjectCoverage
+import hudson.plugins.clover.Ratio
 import groovy.transform.Field
 
 /**
@@ -297,6 +300,7 @@ def getTestSummary() {
  */
 def getCoverageSummary() {
     def coverageAction = currentBuild.rawBuild.getAction(CoberturaBuildAction.class)
+    def cloverCoverageAction = currentBuild.rawBuild.getAction(CloverBuildAction.class)
     def summary = ""
 
     if (coverageAction != null) {
@@ -305,6 +309,11 @@ def getCoverageSummary() {
         	summary = "Lines Covered: " + lineData.getPercentage() + "%"
         } else {
         	summary = "No Coverage Data"
+        }
+    } else if (cloverCoverageAction != null) {
+        def coverageData = coverageAction.getResult()
+        if (coverageData != null) {
+            summary = "Lines Covered: " + coverageData.getStatementCoverage().getPercentageStr()
         }
     } else {
         summary = "No Coverage Data"
