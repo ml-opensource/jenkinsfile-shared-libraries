@@ -520,7 +520,7 @@ def slackHeader() {
  */
 def sendSlackError(Exception e, String message) {
     def errorMessage = e.toString()
-	if (!(e instanceof InterruptedException) && env.SLACK_CHANNEL_NOTIFIED != "true" && !errorMessage.contains("Queue task was cancelled")) {
+    if (!(e instanceof InterruptedException) && env.SLACK_CHANNEL_NOTIFIED != "true" && !errorMessage.contains("Queue task was cancelled")) {
         env.SLACK_CHANNEL_NOTIFIED = "true"
         def logs = currentBuild.rawBuild.getLog(200).reverse()
         def logsToPrint = []
@@ -548,7 +548,7 @@ def sendSlackError(Exception e, String message) {
         } 
         logsToPrint = logsToPrint.reverse()
         logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
-		slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message
+        slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message
         slackSend color: 'danger', channel: slackChannel, message:"```${logsString}```"
 
         if (!errorMessage.contains("script returned exit code 1")) {
