@@ -44,6 +44,7 @@ def call(String nodeName = "", Boolean checkoutCode = true, Boolean onlyPR = tru
 	hasPRJob = hasPR()
 	protectedBranches = ["dev","master","production","staging","sandbox"]
 	isProtectedBranch = protectedBranches.contains(env.BRANCH_NAME) || registerBranches.contains(env.BRANCH_NAME);
+	handledError = false
 	if (!hasPRJob || (hasPRJob && !onlyPR) || isWeb || isProtectedBranch) {
 		try {
 			node(nodeName) {
@@ -55,11 +56,19 @@ def call(String nodeName = "", Boolean checkoutCode = true, Boolean onlyPR = tru
 					if (nodeName == 'jenkins-ecs'){
 						bash "sudo setfacl -m user:jenkins:rw /var/run/docker.sock"
 					}
-					body()
+					try {
+						body()
+					} catch(Throwable e) {
+						if (isMultibranch()) {
+							slack.sendSlackError(e, "Unknown failure detected during _*Stage ${env.STAGE_NAME}*_")
+						}
+						handledError = true
+        				throw e
+					}
 				}
 			}
 		} catch(Throwable e) {
-			if (isMultibranch()) {
+			if (isMultibranch() && !handledError) {
 				slack.sendSlackError(e, "Unknown failure detected during _*Stage ${env.STAGE_NAME}*_")
 			}
         	throw e
