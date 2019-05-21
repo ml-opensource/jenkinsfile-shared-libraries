@@ -536,7 +536,7 @@ def sendSlackError(Exception e, String message) {
         def addToLogs = true
         for(String logString : logs) {
             if (logString.contains("from /Users")) { //iOS Ruby Exceptions
-            } else if (logString.contains("/lib/rails/" || logString.contains("/.rvm/gems/ruby"))) { //iOS Ruby Exceptions
+            } else if (logString.contains("/lib/rails/") || logString.contains("/.rvm/gems/ruby"))) { //iOS Ruby Exceptions
             } else if(logString.contains("fastlane finished with errors")) {
                 if (logsToPrint.size() > 0) {
                     addToLogs = false    
