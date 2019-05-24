@@ -21,8 +21,16 @@ def call(String prettyName = "", Closure body) {
 	stage("Build") {
 		body()
 		archiveArtifacts '**/archive/*.ipa, **/outputs/apk/**/*.apk'
-		storeFuzzArtifacts()
+		try {
+			storeFuzzArtifacts()
+		} catch(Throwable t) {
+			//running on a none fuzz jenkins server
+		}
 		slack.buildMessage()
-		build job: 'Fuzzwares Push Notifications', parameters: [string(name: 'JOB', value: jobName), string(name: 'NAME', value: prettyJobName), string(name: 'BUILD', value: "${env.BUILD_NUMBER}")], wait: false
+		try {
+			build job: 'Fuzzwares Push Notifications', parameters: [string(name: 'JOB', value: jobName), string(name: 'NAME', value: prettyJobName), string(name: 'BUILD', value: "${env.BUILD_NUMBER}")], wait: false
+		} catch(Throwable t) {
+			//running on a none fuzz jenkins server
+		}
 	}
 }
