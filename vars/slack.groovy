@@ -680,23 +680,6 @@ def isProjectSuccessful() {
 }
 
 /**
- * Send out one of two hard-coded security alerts. One if there were failures, the other
- * if there weren't.
- *
- * @return nothing
- * @see slack#isProjectSuccessful
- * @see slack#sendSlackError
- */
-def sendNestStatus() {
-    if (isProjectSuccessful()) {
-        slackSend color: 'good', channel: slackChannel, message: "Nest Security Status Updated" 
-    } else {
-        slackSend color: 'danger', channel: slackChannel, message: "@here Nest failed to update security status" 
-    }
-
-}
-
-/**
  * Send an 'Automation Test Suite Complete!' Slack message including
  * <ul>
  *     <li>{@link slack#slackHeader Standard header}</li>
