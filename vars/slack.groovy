@@ -195,16 +195,21 @@ def getCommitLog() {
  * @return a string containing the list of artifacts, or a message
  */
 def getArtifacts() { 
-    def artifactStores = currentBuild.rawBuild.getAction(ArtifactStoreAction.class)
     def summary = ""
-    if (artifactStores != null) {
-    	for(ArtifactStore artifact : artifactStores.artifacts) {
-			def fileName = artifact.fileName
-			def uuid = artifact.UDID
-			summary += "<https://builds.fuzzhq.com/install.php?id=${uuid}|${fileName}>\n"
-    	}	    
-    } else {
-        summary = "No Artifacts"
+    try {
+	    def artifactStores = currentBuild.rawBuild.getAction(ArtifactStoreAction.class)
+	    if (artifactStores != null) {
+		    for(ArtifactStore artifact : artifactStores.artifacts) {
+			    def fileName = artifact.fileName
+			    def uuid = artifact.UDID
+			    summary += "<https://builds.fuzzhq.com/install.php?id=${uuid}|${fileName}>\n"
+		    }	    
+	    } else {
+		    summary = "No Artifacts"
+	    }
+    } catch (Throwable t) {
+	    println "Does not have Artifact Store Installed" 
+	    summary = "No Artifacts"
     }
     return summary
 }
