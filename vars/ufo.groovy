@@ -34,9 +34,9 @@ def install() {
  */
 def deploy(String cluster = 'dev', String config = 'default') {
 	if (config == 'default') {
-		slack.qbash "ufo deploy --cluster ${cluster} --timeout 10"
+		slack.qbash "ufo deploy --cluster ${cluster} --timeout 15"
 	} else {
-		slack.qbash "ufo deploy --cluster ${cluster} --config ${config} --timeout 10"
+		slack.qbash "ufo deploy --cluster ${cluster} --config ${config} --timeout 15"
 	}
 }
 
