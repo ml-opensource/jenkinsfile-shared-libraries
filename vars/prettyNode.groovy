@@ -53,7 +53,7 @@ def call(String nodeName = "", Boolean checkoutCode = true, Boolean onlyPR = tru
 						checkoutStage()
 						clearChanges()
 					}
-					if (nodeName == 'jenkins-ecs' || 'jenkins-ecs-medium'){
+					if (nodeName == 'jenkins-ecs' || nodeName == 'jenkins-ecs-medium'){
 						bash "sudo setfacl -m user:jenkins:rw /var/run/docker.sock"
 					}
 					try {
