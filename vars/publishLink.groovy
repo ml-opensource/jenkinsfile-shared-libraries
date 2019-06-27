@@ -5,19 +5,20 @@
  *     url.
  * </p>
  *
+ * @param urlScheme what scheme the url should use. Defaults to https
  * @return nothing
  * @see injectDeploymentVars#call
  */
-def call() {
+def call(String urlScheme = "https") {
     // Publish a Rich Text Publishing message - this will appear on the Build Status page.
 	// See https://jenkins.io/doc/pipeline/steps/rich-text-publisher-plugin/ for syntax
 	rtp(
 			nullAction: '1',
 			parserName: 'HTML',
-			stableText: "<a href=\"http://${env.DEPLOY_URL}\">http://${env.DEPLOY_URL}</a>"
+			stableText: "<a href=\"${urlScheme}://${env.DEPLOY_URL}\">${urlScheme}://${env.DEPLOY_URL}</a>"
 	)
 
     // Publish a plain URL to our Slack integration. That'll handle formatting for us.
-	deploymentURL = "http://${env.DEPLOY_URL}"
+	deploymentURL = "${urlScheme}://${env.DEPLOY_URL}"
 	slack.linkMessage(deploymentURL)
 }
