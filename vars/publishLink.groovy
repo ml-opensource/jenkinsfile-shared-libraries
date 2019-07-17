@@ -9,10 +9,17 @@
  * @return nothing
  * @see injectDeploymentVars#call
  */
-def call(String urlScheme = "https") {
+def call(String urlScheme = "https", String url = '') {
 
     // First, define a common 'deployment url' where the application can be found.
-    String deploymentURL = "${urlScheme}://${env.DEPLOY_URL}"
+    String deploymentURL = "${urlScheme}://"
+	if ( url != '' ) {
+		deploymentURL = deploymentURL + url
+	}
+	else {
+		deploymentURL = deploymentURL + env.DEPLOY_URL
+	}
+
 
     // Publish a Rich Text Publishing message - this will appear on the Build Status page.
 	// See https://jenkins.io/doc/pipeline/steps/rich-text-publisher-plugin/ for syntax
