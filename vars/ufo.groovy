@@ -11,9 +11,11 @@
 def install() {
 	// If the ufo installation should encounter an error, this bit of shell will retry twice more before failing
 	bash '''
+	set -x
+	set -e
 	for i in 2 1 0
 	do
-		if go get -u github.com/fuzz-productions/ufo
+		if go get github.com/fuzz-productions/ufo
 		then
 			exit 0
 		fi
