@@ -11,8 +11,8 @@
  */
 def call(String urlScheme = "https", String url = '') {
 
-    // First, define a common 'deployment url' where the application can be found.
-    String deploymentURL = "${urlScheme}://"
+	// First, define a common 'deployment url' where the application can be found.
+	String deploymentURL = "${urlScheme}://"
 	if ( url != '' ) {
 		deploymentURL = deploymentURL + url
 	}
@@ -24,9 +24,9 @@ def call(String urlScheme = "https", String url = '') {
     // Publish a Rich Text Publishing message - this will appear on the Build Status page.
 	// See https://jenkins.io/doc/pipeline/steps/rich-text-publisher-plugin/ for syntax
 	rtp(
-			nullAction: '1',
-			parserName: 'HTML',
-			stableText: "<a href=\"${deploymentURL}\">${deploymentURL}</a>"
+		nullAction: '1',
+		parserName: 'HTML',
+		stableText: "<a href=\"${deploymentURL}\">${deploymentURL}</a>"
 	)
 
     // Publish a plain URL to our Slack integration. That'll handle formatting for us.
