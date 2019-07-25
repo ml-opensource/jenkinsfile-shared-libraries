@@ -1,5 +1,5 @@
 /**
- * Checkout code from a Git repository. This runs as a separate Stage.
+ * Checkout code from a Git repository.
  * <p>
  *     This runs (in order) <pre>
  *     checkout scm
@@ -28,7 +28,7 @@
  * @return nothing
  */
 def call(Closure body) {
-	stage("Checkout") {
+	//stage("Checkout") {
 		checkout scm
 		try {
 			sh 'git lfs install'
@@ -38,5 +38,5 @@ def call(Closure body) {
 		if (body != null) {
 			body()
 		}
-	}
+	//}
 }
