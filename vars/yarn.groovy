@@ -18,8 +18,15 @@ def call(String command) {
  * @param body arbitrary code to run first
  * @return nothing
  */
-def install(Closure body = null) {
-	stage("Install") {
+def install(boolean useClosure = false, Closure body = null) {
+	if (useClosure) {
+		stage("Install") {
+			if (body != null) {
+				body()
+			}
+			yarn 'install' 
+		}
+	} else {
 		if (body != null) {
 			body()
 		}
@@ -139,5 +146,5 @@ def setupNoStage(String nodeVersion = 'node', Closure body = null) {
  */
 def installAndSetup(String nodeVersion = 'node') {
 	setup(nodeVersion, true)
-	install()
+	install(true)
 }
