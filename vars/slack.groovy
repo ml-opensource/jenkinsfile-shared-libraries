@@ -574,7 +574,7 @@ def sendSlackError(Exception e, String message) {
 
 def sendMessageWithLogs(String message) {
 	def logs = currentBuild.rawBuild.getLog(10).reverse()
-        logsString = logs.reverse().join("\n")
+        logsString = logs.reverse().subList(1, logsToPrint.size()).join("\n")
         slackSend color: 'warning', channel: slackChannel, message:message
         slackSend color: 'warning', channel: slackChannel, message:"```${logsString}```"
 }
