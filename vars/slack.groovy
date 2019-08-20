@@ -567,7 +567,8 @@ def sendSlackError(Exception e, String message) {
         slackSend color: 'danger', channel: slackChannel, message:"```${logsString}```"
 
         if (!errorMessage.contains("script returned exit code 1")) {
-           slackSend color: 'danger', channel: "jenkins_notifications", message:slackHeader() + "${e}"   
+           slackSend color: 'danger', channel: "jenkins_notifications", message:slackHeader() + "${e}" 
+	   slackSend color: 'danger', channel: "jenkins_notifications", message:e.printStackTrace()  
         }
     }
 }
