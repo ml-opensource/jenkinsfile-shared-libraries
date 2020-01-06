@@ -17,13 +17,14 @@
  * @param qualityFile a gradle-compatible script file, hosted on Jenkins, which can check code quality
  * @param buildscript a gradle-compatible script file, hosted on Jenkins, which has extra maven
  * repos and classpath entries for running those checks
+ * @param buildGradleFile which build.gradle file the 'qualityFile' should be applied to
  * @return nothing
  */
-def call(String qualityFile = "quality.gradle", String buildscript = "buildscript.gradle") {
+def call(String qualityFile = "quality.gradle", String buildscript = "buildscript.gradle", String buildGradleFile = "app/build.gradle") {
     try {
         sh "curl -O '${env.HUDSON_URL}/userContent/jenkins-scripts/android/${qualityFile}'"
-        sh 'printf "\n" >> app/build.gradle'
-        sh "echo \"apply from: '../${qualityFile}'\" >> app/build.gradle"
+        sh "printf \"\n\" >> ${buildGradleFile}"
+        sh "echo \"apply from: '../${qualityFile}'\" >> ${buildGradleFile}"
         sh "curl ${env.HUDSON_URL}/userContent/jenkins-scripts/android/${buildscript} >> build.gradle"
     } catch (Throwable t) {
         println "Reporting will fail due to missing files" 
