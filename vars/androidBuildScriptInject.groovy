@@ -19,7 +19,7 @@
  * repos and classpath entries for running those checks
  * @return nothing
  */
-def call(String qualityFile = "quality_six.gradle", String buildscript = "buildscript.gradle") {
+def call(String qualityFile = "quality.gradle", String buildscript = "buildscript.gradle") {
     try {
         sh "curl -O '${env.HUDSON_URL}/userContent/jenkins-scripts/android/${qualityFile}'"
         sh 'printf "\n" >> app/build.gradle'
