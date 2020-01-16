@@ -14,6 +14,10 @@ List call(String services) {
 /**
  * TODO: Autodetect the best toolset.
  * <p>
+ *     Designed to work well with the Warnings Next Generation
+ *     plugin, as executed by e.g. {@link reportQuality#call}.
+ * </p>
+ * <p>
  *     This method consumes <code>services</code>.
  * </p>
  *
