@@ -27,7 +27,7 @@ List call(String services) {
  *
  * @param services some indication of which tools should be returned
  * @return a list of tools that make sense for this situation
- * @see #android
+ * @see prebuiltQualityToolset#android
  */
 List basic(String services) {
 	List toolset = []
