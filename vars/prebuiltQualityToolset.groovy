@@ -1,18 +1,5 @@
 /**
- * Default behavior: delegate to {@link #autodetect}.
- * <p>
- *     This method consumes <code>services</code>.
- * </p>
- *
- * @param services some indication of which tools should be returned
- * @return a list of tools that make sense for this situation
- */
-List call(String services) {
-	return autodetect(services)
-}
-
-/**
- * TODO: Autodetect the best toolset.
+ * Default behavior: delegate to {@link #basic}.
  * <p>
  *     Designed to work well with the Warnings Next Generation
  *     plugin, as executed by e.g. {@link reportQuality#call}.
@@ -24,18 +11,43 @@ List call(String services) {
  * @param services some indication of which tools should be returned
  * @return a list of tools that make sense for this situation
  */
-List autodetect(String services) {
-	if (env.PLATFORM == 'Android') {
-		return android(services)
-	} else {
-		// No tools to discuss...return a default set
-		return []
+List call(String services) {
+	return basic(services)
+}
+
+/**
+ * This looks for one or so non-committal quality checks.
+ * <p>
+ *     Designed to work well with the Warnings Next Generation
+ *     plugin, as executed by e.g. {@link reportQuality#call}.
+ * </p>
+ * <p>
+ *     This method consumes <code>services</code>.
+ * </p>
+ *
+ * @param services some indication of which tools should be returned
+ * @return a list of tools that make sense for this situation
+ * @see #android
+ */
+List basic(String services) {
+	List toolset = []
+
+	// If this entry is present, scan for TODOs and FIXMEs.
+	if (services.remove("taskScanner")) {
+		toolset.add(
+				taskScanner(excludePattern: '**/build/**, **/node_modules/**, qualityReports/**', highTags: 'FIXME,suck', ignoreCase: true, includePattern: '**/*.swift, **/*.java, **/*.ts, **/*.kt, **/*.xml, **/*.m, **/*.h, **/*.c, **/*.yml, **/*.gradle', lowTags: 'deprecated', normalTags: 'TODO')
+		)
 	}
+	return toolset
 }
 
 /**
  * Choose from a decent set of tools that we typically associate
  * with Android projects.
+ * <p>
+ *     Designed to work well with the Warnings Next Generation
+ *     plugin, as executed by e.g. {@link reportQuality#call}.
+ * </p>
  * <p>
  *     This method consumes <code>services</code>.
  * </p>

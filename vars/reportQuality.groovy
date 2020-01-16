@@ -18,7 +18,7 @@ def call() {
 	try {
 		println "Services: \n- " + services
 
-		List toolset = prebuiltQualityToolset.autodetect(services)
+		List toolset = prebuiltQualityToolset.basic(services)
 
 
 		recordIssues(
