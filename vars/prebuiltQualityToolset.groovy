@@ -63,7 +63,35 @@ List android(String services) {
 	// Minor sanity check in case the plugin API changes significantly
 	println "Toolset: " + toolset.getClass()
 
-	// TODO: Add some tools!
-
+	if (services.remove("cpd")) {
+		toolset.add(
+				cpd(highThreshold: 120, pattern: '**/cpd.xml, **/cpdCheck.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true)
+		)
+	}
+	if (services.remove("checkStyle")) {
+		toolset.add(
+				checkStyle(pattern: '**/checkstyle-result.xml, **/checkstyle.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true)
+		)
+	}
+	if (services.remove("androidLint")) {
+		toolset.add(
+				androidLintParser(pattern: '**/androidLint.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true)
+		)
+	}
+	if (services.remove("esLint")) {
+		toolset.add(
+				esLint(pattern: '**/es-lint.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true)
+		)
+	}
+	if (services.remove("taskScanner")) {
+		toolset.add(
+				taskScanner(excludePattern: '**/build/**, **/node_modules/**, qualityReports/**', highTags: 'FIXME,suck', ignoreCase: true, includePattern: '**/*.swift, **/*.java, **/*.ts, **/*.kt, **/*.xml, **/*.m, **/*.h, **/*.c, **/*.yml, **/*.gradle', lowTags: 'deprecated', normalTags: 'TODO')
+		)
+	}
+	if (services.remove("pmd")) {
+		toolset.add(
+				pmdParser()
+		)
+	}
 	return toolset
 }
