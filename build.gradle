@@ -1,0 +1,10 @@
+
+
+// TODO: Refer to https://mrhaki.blogspot.com/2016/01/groovy-goodness-customise-groovydoc.html
+
+// Potential command-line:
+//
+// groovydoc -d docs -nomainforscripts -windowtitle 'Jenkins Pipeline Scripts' -fileEncoding 'UTF-8' --verbose vars/*.groovy
+//
+
+
