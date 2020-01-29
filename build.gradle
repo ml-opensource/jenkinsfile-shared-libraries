@@ -35,6 +35,25 @@ dependencies {
 }
 
 
+// This file is based on https://github.com/mrhaki/Groovy-Goodness/blob/5024bd3a5a2eb96cdf072e6144412a81416a0936/Blog/Posts/Customise_Groovydoc_Output_With_Gradle/sample.groovy
+
+// Here we add a new SourceSet
+// that has a resources directory
+// at 'src/templates'. This directory
+// contains Groovydoc template files
+// we want to override for our project.
+//
+// The original source files in the 'src/templates' directory may be found at
+// https://github.com/apache/groovy/tree/61ee9c9fa31cef2ad/subprojects/groovy-groovydoc/src/main/resources/org/codehaus/groovy/tools/groovydoc/gstringTemplates
+//
+sourceSets {
+	templates {
+		resources {
+			srcDir 'src/templates'
+		}
+	}
+}
+
 // This DSL method was added for us by the 'groovy' plugin
 groovydoc {
 
@@ -43,8 +62,14 @@ groovydoc {
 	windowTitle = "The Unofficial Jenkins Pipeline Library"
 
 	source = project.file('vars')
-	// TODO: place our own template files at the start of the classpath
-	// classpath = '????'
+
+	// Change classpath property to include
+	// the output of the SourceSet 'templates'.
+	//
+	// The output contains any changed stylesheet
+	// or template file and must be first in the classpath,
+	// BEFORE the files that are bundled with Groovy.
+	classpath = sourceSets.templates.output + classpath
 	destinationDir = project.file('docs')
 
 	// TODO: Set up all the GroovyDoc task properties
