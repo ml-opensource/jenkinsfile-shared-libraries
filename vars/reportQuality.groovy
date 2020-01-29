@@ -5,9 +5,12 @@ import java.util.function.Function
  * <p>
  *     This runs a bunch of reporting tools. Configure them with a String
  *     on env called QUALITY_SERVICES. This is intended as a long-term (yet
- *     still unstable) replacement for {@link testStage#call testStage} and
- *     {@link uatStage#call uatStage}. To add it to a Pipeline stage, use
- *     {@link reportStage#call reportStage}.
+ *     still unstable) replacement for
+ *     {@link standardReportArchives#call standardReportArchives}
+ * </p>
+ * <p>
+ *     To add it to a Pipeline stage, use {@link testStage#call testStage}
+ *     or {@link reportStage#call reportStage}.
  * </p>
  * <p>
  *     The 'toolset' returned by the <code>translateToToolset</code> param
@@ -39,6 +42,7 @@ def call(Function<String, List> translateToToolset = prebuiltQualityToolset.&bas
 
 		List toolset = translateToToolset(services)
 
+		println "Toolset is as follows: ${toolset}"
 
 		recordIssues(
 				aggregatingResults: true,
