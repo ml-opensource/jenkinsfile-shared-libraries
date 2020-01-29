@@ -29,7 +29,15 @@ dependencies {
 // This DSL method was added for us by the 'groovy' plugin
 groovydoc {
 
+	source = project.file('vars')
+	// TODO: place our own template files at the start of the classpath
+	// classpath = '????'
+	destinationDir = project.file('docs')
+
 	// TODO: Set up all the GroovyDoc task properties
+
+	// Make sure this task always runs. Gradle's default behavior is so annoying.
+	outputs.upToDateWhen { false }
 
 }
 
