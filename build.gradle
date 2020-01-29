@@ -1,3 +1,12 @@
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.format.TextStyle
+
+import static java.time.ZonedDateTime.now
+import static java.time.format.DateTimeFormatter.ofLocalizedDate
+import static java.time.format.FormatStyle.LONG
+
 // TODO: Refer to https://mrhaki.blogspot.com/2016/01/groovy-goodness-customise-groovydoc.html
 
 // Potential command-line:
@@ -42,6 +51,20 @@ groovydoc {
 
 	// Make sure this task always runs. Gradle's default behavior is so annoying.
 	outputs.upToDateWhen { false }
+
+	doFirst {
+		DateTimeFormatter theDate = new DateTimeFormatterBuilder()
+				.append(ofLocalizedDate(LONG))
+				.appendLiteral(' ')
+				.appendZoneText(TextStyle.SHORT)
+				.toFormatter()
+
+		// Set custom footer for generated documentation.
+		footer = """\
+        <div class="custom-footer">
+            Generated on: ${theDate.format(now(ZoneId.of('America/New_York')))}
+        </div>""".stripIndent()
+	}
 
 }
 
