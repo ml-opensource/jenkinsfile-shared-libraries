@@ -29,6 +29,10 @@ dependencies {
 // This DSL method was added for us by the 'groovy' plugin
 groovydoc {
 
+	// These names might need a little work, but they should do for a first release
+	docTitle = "Quick-Start Files"
+	windowTitle = "The Unofficial Jenkins Pipeline Library"
+
 	source = project.file('vars')
 	// TODO: place our own template files at the start of the classpath
 	// classpath = '????'
