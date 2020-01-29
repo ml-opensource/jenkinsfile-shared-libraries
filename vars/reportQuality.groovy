@@ -29,7 +29,7 @@ import java.util.function.Function
  * @param translateToToolset something that maps a String into an array of
  * toolset elements; defaults to a method ref to {@link prebuiltQualityToolset#basic}
  * @return nothing
- * @see prebuiltQualityToolset#standardAndroidToolset
+ * @see prebuiltQualityToolset#android
  */
 def call(Function<String, List> translateToToolset = prebuiltQualityToolset.&basic) {
 	final String services = env.QUALITY_SERVICES
