@@ -70,3 +70,36 @@ List android(String services) {
 
 	return toolset
 }
+
+/**
+ * Choose from a decent set of tools that we typically associate
+ * with iOS projects.
+ * <p>
+ *     Strict super-set of {@link prebuiltQualityToolset#basic}.
+ * </p>
+ * <p>
+ *     Designed to work well with the Warnings Next Generation
+ *     plugin, as executed by e.g. {@link reportQuality#call}.
+ * </p>
+ *
+ * @param services unused
+ * @return a list of tools that make sense for this situation
+ */
+List ios(String services) {
+	// By default, we should always look for incomplete tasks (like TODOs).
+	List toolset = basic(services)
+
+	[
+			clang(),
+			cpd(highThreshold: 120, pattern: '**/cpd.xml, **/*-cpd.xml **/cpdCheck.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true),
+			checkStyle(pattern: '**/checkstyle-result.xml, **/checkstyle.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true),
+			swiftLint(pattern: '**/swift-lint.xml, **/*-lint.xml', reportEncoding: 'UTF-8')
+	].forEach {
+		toolset.add(it)
+	}
+
+	// Minor sanity check in case the plugin API changes significantly
+	println "Toolset: " + toolset.getClass()
+
+	return toolset
+}
