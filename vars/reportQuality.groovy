@@ -1,13 +1,63 @@
 import java.util.function.Function
 
 /**
- * Report code quality issues.
+ * This method collates the findings of a set of code quality checks.
  * <p>
- *     This runs a bunch of reporting tools. Configure them with a String
- *     on env called QUALITY_SERVICES. This is intended as a long-term (yet
- *     still unstable) replacement for
- *     {@link standardReportArchives#call standardReportArchives}
+ *     If this project has defined <code>env.QUALITY_SERVICES</code>, then
+ *     we use the modern quality toolsets.
  * </p>
+ * <p>
+ *     You can change which of the modern tools are chosen by
+ *     <ol>
+ *         <li>Passing in a non-null transform function</li>
+ *     </ol>
+ *     For the exact list of tools please refer to the documentation on {@link prebuiltQualityToolset#basic},
+ *     {@link prebuiltQualityToolset#android}, and {@link prebuiltQualityToolset#ios}.
+ * </p>
+ * BE WARNED: This method suppresses all exceptions.
+ *
+ * @param translateToToolset something that maps a String into an array of
+ * toolset elements; defaults to a method ref to {@link prebuiltQualityToolset#basic}
+ * @return nothing
+ * @see androidBuildScriptInject#call
+ */
+def call(Function<String, List> translateToToolset = prebuiltQualityToolset.&basic) {
+	try {
+		// See if this project opted into a custom set of quality checks
+		if (env.QUALITY_SERVICES instanceof String && env.QUALITY_SERVICES.length() > 0) {
+			collateIssues(translateToToolset)
+		} else {
+			legacy()
+		}
+		sloccountPublish encoding: '', pattern: '**/*cloc.xml'
+	} catch (Exception ignored) {
+		// Let us silence all errors
+	}
+}
+
+/**
+ * Legacy behavior from {@link reportQuality#call}.
+ * <p>
+ *      If a caller to that method did not opt into the modern toolset, we simply scan for the following:
+ * </p>
+ * <ul>
+ *     <li>Checkstyle</li>
+ *     <li><a href="https://pmd.github.io/">PMD</a></li>
+ *     <li>DRY</li>
+ *     <li>OpenTasks</li>
+ * </ul>
+ *
+ * @deprecated this is an internal transition method. Please migrate to the modern toolset.
+ */
+private void legacy() {
+	checkstyle canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '**/*-lint.xml, **/*checkstyle.xml', unHealthy: ''
+	pmd canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '**/*pmd.xml', unHealthy: ''
+	dry canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '**/*cpd.xml, **/cpdCheck.xml', unHealthy: ''
+	openTasks canComputeNew: false, defaultEncoding: '', excludePattern: '**/Libraries/**, **/Pods/**, **/*.framework/**, **/Xcode.app/**, **/build/**', healthy: '', high: 'FIXME,shit,fuck,suck', ignoreCase: true, low: 'deprecated', normal: 'TODO', pattern: '**/*.swift, **/*.java, **/*.kt, **/*.m, **/*.h, **/*.c', unHealthy: ''
+}
+
+/**
+ * Report code quality issues.
  * <p>
  *     To add it to a Pipeline stage, use {@link testStage#call testStage}
  *     or {@link reportStage#call reportStage}.
@@ -34,7 +84,7 @@ import java.util.function.Function
  * @return nothing
  * @see prebuiltQualityToolset#android
  */
-def call(Function<String, List> translateToToolset = prebuiltQualityToolset.&basic) {
+def collateIssues(Function<String, List> translateToToolset = prebuiltQualityToolset.&basic) {
 	final String services = env.QUALITY_SERVICES
 
 	try {
