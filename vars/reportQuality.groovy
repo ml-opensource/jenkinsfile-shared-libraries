@@ -45,7 +45,8 @@ def call(Function<String, List> translateToToolset = null) {
 					translateToToolset = reportQuality.&android
 				} else if (env.IS_IOS == 'true') {
 					translateToToolset = reportQuality.&ios
-					// TODO: Check for 'IS_WEB'
+				} else if (env.IS_WEB == 'true') {
+					translateToToolset = reportQuality.&web
 				} else {
 					translateToToolset = reportQuality.&basic
 				}
@@ -172,6 +173,9 @@ List basic(String services) {
 					skipSymbolicLinks: true
 			)
 	]
+
+	println "Including the Basic Quality toolset..."
+
 	return toolset
 }
 
@@ -199,7 +203,7 @@ List basic(String services) {
  * @return a list of tools that make sense for this situation
  */
 List android(String services) {
-	// By default, we should always look for incomplete tasks (like TODOs).
+	// By default, we should always look for incomplete tasks (like TODOs), checkstyle files, and copy-pasted text.
 	List toolset = basic(services)
 
 	[
@@ -210,8 +214,7 @@ List android(String services) {
 		toolset.add(it)
 	}
 
-	// Minor sanity check in case the plugin API changes significantly
-	println "Toolset: " + toolset.getClass()
+	println "Including the default Android Quality toolset..."
 
 	return toolset
 }
@@ -238,7 +241,7 @@ List android(String services) {
  * @return a list of tools that make sense for this situation
  */
 List ios(String services) {
-	// By default, we should always look for incomplete tasks (like TODOs).
+	// By default, we should always look for incomplete tasks (like TODOs), checkstyle files, and copy-pasted text.
 	List toolset = basic(services)
 
 	[
@@ -247,8 +250,36 @@ List ios(String services) {
 		toolset.add(it)
 	}
 
-	// Minor sanity check in case the plugin API changes significantly
-	println "Toolset: " + toolset.getClass()
+	println "Including the default iOS Quality toolset"
+
+	return toolset
+}
+
+/**
+ * Choose from a decent set of tools that we typically associate
+ * with Web projects.
+ * <p>
+ *     Strict super-set of {@link reportQuality#basic}.
+ * </p>
+ * <p>
+ *     Designed to work well with the Warnings Next Generation
+ *     plugin, as executed by e.g. {@link reportQuality#collateIssues}.
+ * </p>
+ * <p>
+ *     The returned list will include the following tools:
+ *     <ul>
+ *         <li>Everything returned by {@link reportQuality#basic}</li>
+ *     </ul>
+ * </p>
+ *
+ * @param services unused
+ * @return a list of tools that make sense for this situation
+ */
+List web(String services) {
+	// By default, we should always look for incomplete tasks (like TODOs), checkstyle files, and copy-pasted text.
+	List toolset = basic(services)
+
+	println "Including the default Web Quality toolset..."
 
 	return toolset
 }
