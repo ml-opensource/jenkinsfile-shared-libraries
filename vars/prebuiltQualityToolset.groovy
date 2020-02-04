@@ -13,7 +13,7 @@ List call(String services) {
 }
 
 /**
- * This looks for one or so non-committal quality checks.
+ * This looks for the base set of quality checks.
  * <p>
  *     Designed to work well with the Warnings Next Generation
  *     plugin, as executed by e.g. {@link reportQuality#call}.
@@ -32,6 +32,18 @@ List basic(String services) {
 					includePattern: '**/*.swift, **/*.java, **/*.ts, **/*.kt, **/*.xml, **/*.m, **/*.h, **/*.c, **/*.yml, **/*.gradle',
 					lowTags: 'deprecated',
 					normalTags: 'TODO'
+			),
+			// NB: Most linters (including SwiftLint and ESLint) can create CheckStyle-format XML files.
+			checkStyle(
+					pattern: '**/checkstyle-result.xml, **/checkstyle.xml, **/*-lint.xml',
+					reportEncoding: 'UTF-8',
+					skipSymbolicLinks: true
+			),
+			cpd(
+					highThreshold: 120,
+					pattern: '**/cpd.xml, **/cpdCheck.xml',
+					reportEncoding: 'UTF-8',
+					skipSymbolicLinks: true
 			)
 	]
 	return toolset
@@ -57,10 +69,7 @@ List android(String services) {
 
 	[
 			javaDoc(),
-			cpd(highThreshold: 120, pattern: '**/cpd.xml, **/cpdCheck.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true),
-			checkStyle(pattern: '**/checkstyle-result.xml, **/checkstyle.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true),
 			androidLintParser(pattern: '**/androidLint.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true),
-			esLint(pattern: '**/es-lint.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true),
 			pmdParser()
 	].forEach {
 		toolset.add(it)
@@ -90,10 +99,7 @@ List ios(String services) {
 	List toolset = basic(services)
 
 	[
-			clang(),
-			cpd(highThreshold: 120, pattern: '**/cpd.xml, **/*-cpd.xml **/cpdCheck.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true),
-			checkStyle(pattern: '**/checkstyle-result.xml, **/checkstyle.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true),
-			swiftLint(pattern: '**/swift-lint.xml, **/*-lint.xml', reportEncoding: 'UTF-8')
+			clang()
 	].forEach {
 		toolset.add(it)
 	}
