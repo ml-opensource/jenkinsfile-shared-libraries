@@ -56,8 +56,9 @@ def call(Function<String, List> translateToToolset = null) {
 			legacy()
 		}
 		sloccountPublish encoding: '', pattern: '**/*cloc.xml'
-	} catch (Exception ignored) {
-		// Let us silence all errors
+	} catch (Exception ex) {
+		// Let us give voice to all errors
+		throw ex
 	}
 }
 
@@ -126,6 +127,7 @@ def collateIssues(Function<String, List> translateToToolset = reportQuality.&bas
 		)
 	} catch (RuntimeException unexpected) {
 		println "One problem: ${unexpected.message}"
+		throw unexpected
 	}
 }
 
