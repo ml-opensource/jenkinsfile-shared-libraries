@@ -3,12 +3,20 @@ import java.util.function.Function
 /**
  * This method collates the findings of a set of code quality checks.
  * <p>
+ *     To add this to a Pipeline stage, use {@link testStage#call testStage}
+ *     or {@link reportStage#call reportStage}.
+ * </p>
+ * <p>
  *     If this project has defined <code>env.QUALITY_SERVICES</code>, then
  *     we use the modern quality toolsets.
  * </p>
  * <p>
  *     You can change which of the modern tools are chosen by
  *     <ol>
+ *         <li>Marking this as ANDROID by {@link gradlew#call running the gradle tool}</li>
+ *         <li>Marking this as IOS by {@link fastlane#call running the fastlane tool}</li>
+ *         <li>Marking this as WEB by {@link injectDeploymentVars#call aligning to our web toolchain}</li>
+ *         or, if you want more control,
  *         <li>Passing in a non-null transform function</li>
  *     </ol>
  *     For the exact list of tools please refer to the documentation on {@link reportQuality#basic},
@@ -22,14 +30,26 @@ import java.util.function.Function
  * BE WARNED: This method suppresses all exceptions.
  *
  * @param translateToToolset something that maps a String into an array of
- * toolset elements; defaults to a method ref to {@link reportQuality#basic}
+ * toolset elements; if null, we will use {@link reportQuality#basic},
+ * {@link reportQuality#android}, and/or {@link reportQuality#ios}
  * @return nothing
  * @see androidBuildScriptInject#call
  */
-def call(Function<String, List> translateToToolset = reportQuality.&basic) {
+def call(Function<String, List> translateToToolset = null) {
 	try {
 		// See if this project opted into a custom set of quality checks
 		if (env.QUALITY_SERVICES instanceof String && env.QUALITY_SERVICES.length() > 0) {
+			if (translateToToolset == null) {
+				// Perform some auto-detection:
+				if (env.IS_ANDROID == 'true') {
+					translateToToolset = reportQuality.&android
+				} else if (env.IS_IOS == 'true') {
+					translateToToolset = reportQuality.&ios
+					// TODO: Check for 'IS_WEB'
+				} else {
+					translateToToolset = reportQuality.&basic
+				}
+			}
 			collateIssues(translateToToolset)
 		} else {
 			legacy()
@@ -64,8 +84,7 @@ private void legacy() {
 /**
  * Report code quality issues.
  * <p>
- *     To add it to a Pipeline stage, use {@link testStage#call testStage}
- *     or {@link reportStage#call reportStage}.
+ *     Implementation detail for {@link reportQuality#call}.
  * </p>
  * <p>
  *     The 'toolset' returned by the <code>translateToToolset</code> param

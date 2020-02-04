@@ -9,11 +9,12 @@ import java.util.function.Function
  * </p>
  *
  * @param translateToToolset something that maps a String into an array of
- * toolset elements; defaults to a method ref to {@link reportQuality#basic}
+ * toolset elements; if null, we will use {@link reportQuality#basic},
+ * {@link reportQuality#android}, and/or {@link reportQuality#ios}
  * @param body arbitrary code to run within the stage
  * @return nothing
  */
-def call(Function<String, List> translateToToolset = reportQuality.&basic, Closure body) {
+def call(Function<String, List> translateToToolset = null, Closure body) {
 	stage("Report") {
 		body()
 		reportQuality(translateToToolset)
