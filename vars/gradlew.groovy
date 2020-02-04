@@ -3,11 +3,17 @@
  * <p>
  *     Errors are reported to {@link slack#qsh Slack}.
  * </p>
+ * <p>
+ *     Note that calling this function will set 'IS_ANDROID' in the current execution
+ *     environment. Future calls to {@link reportQuality#call} may be affected.
+ * </p>
  *
  * @param command usually a Gradle-compatible task, with options and stuff if desired
  * @return nothing
  */
 def call(String command) {
+	env.IS_ANDROID = 'true'
+
     slack.qsh "./gradlew ${command}"
 }
 

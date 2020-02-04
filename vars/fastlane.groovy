@@ -124,6 +124,11 @@ def run_reports(Closure body = null) {
 /**
  * Run the standard sequence of commands for updating a Fastlane environment.
  * <p>
+ *     Note that calling this function will first set 'IS_IOS' in the current
+ *     execution environment. Future calls to {@link reportQuality#call} may be
+ *     affected.
+ * </p>
+ * <p>
  *     This runs <code>body()</code>, {@link fastlane#clean},
  *     {@link fastlane#install_certs}, and then
  *     {@link fastlane#install_dependencies} within a single Stage.
@@ -133,6 +138,8 @@ def run_reports(Closure body = null) {
  * @return nothing
  */
 def setup(Closure body = null) {
+	env.IS_IOS = 'true'
+
 	if (body != null) {
 		body()
 	}
