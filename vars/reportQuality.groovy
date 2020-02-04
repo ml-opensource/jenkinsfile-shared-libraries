@@ -14,6 +14,11 @@ import java.util.function.Function
  *     For the exact list of tools please refer to the documentation on {@link reportQuality#basic},
  *     {@link reportQuality#android}, and {@link reportQuality#ios}.
  * </p>
+ * <p>
+ *     Regardless of what happens, this method will conclude by collecting any
+ *     <a href="https://dwheeler.com/sloccount/">SLOCCount</a>-compatible reports made by
+ *     <a href="https://github.com/AlDanial/cloc">cloc</a> that it can find.
+ * </p>
  * BE WARNED: This method suppresses all exceptions.
  *
  * @param translateToToolset something that maps a String into an array of
@@ -44,7 +49,7 @@ def call(Function<String, List> translateToToolset = reportQuality.&basic) {
  *     <li>Checkstyle</li>
  *     <li><a href="https://pmd.github.io/">PMD</a></li>
  *     <li>DRY</li>
- *     <li>OpenTasks</li>
+ *     <li>Open Task Scanner</li>
  * </ul>
  *
  * @deprecated this is an internal transition method. Please migrate to the modern toolset.
@@ -111,10 +116,19 @@ def collateIssues(Function<String, List> translateToToolset = reportQuality.&bas
  *     Designed to work well with the Warnings Next Generation
  *     plugin, as executed by e.g. {@link reportQuality#collateIssues}.
  * </p>
+ * <p>
+ *     The returned list will include the following tools:
+ *     <ul>
+ *         <li>Open Task Scanner</li>
+ *         <li>Checkstyle</li>
+ *         <li>CPD</li>
+ *     </ul>
+ * </p>
  *
  * @param services unused
  * @return a list of tools that make sense for this situation
  * @see reportQuality#android
+ * @see reportQuality#ios
  */
 List basic(String services) {
 	List toolset = [
@@ -152,6 +166,15 @@ List basic(String services) {
  *     Designed to work well with the Warnings Next Generation
  *     plugin, as executed by e.g. {@link reportQuality#collateIssues}.
  * </p>
+ * <p>
+ *     The returned list will include the following tools:
+ *     <ul>
+ *         <li>Everything returned by {@link reportQuality#basic}</li>
+ *         <li>JavaDoc Log Scanner</li>
+ *         <li>Android Lint</li>
+ *         <li><a href="https://pmd.github.io/">PMD</a></li>
+ *     </ul>
+ * </p>
  *
  * @param services unused
  * @return a list of tools that make sense for this situation
@@ -183,6 +206,13 @@ List android(String services) {
  * <p>
  *     Designed to work well with the Warnings Next Generation
  *     plugin, as executed by e.g. {@link reportQuality#collateIssues}.
+ * </p>
+ * <p>
+ *     The returned list will include the following tools:
+ *     <ul>
+ *         <li>Everything returned by {@link reportQuality#basic}</li>
+ *         <li>Clang Log Scanner</li>
+ *     </ul>
  * </p>
  *
  * @param services unused
