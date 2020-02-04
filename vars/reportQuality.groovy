@@ -11,17 +11,17 @@ import java.util.function.Function
  *     <ol>
  *         <li>Passing in a non-null transform function</li>
  *     </ol>
- *     For the exact list of tools please refer to the documentation on {@link prebuiltQualityToolset#basic},
- *     {@link prebuiltQualityToolset#android}, and {@link prebuiltQualityToolset#ios}.
+ *     For the exact list of tools please refer to the documentation on {@link reportQuality#basic},
+ *     {@link reportQuality#android}, and {@link reportQuality#ios}.
  * </p>
  * BE WARNED: This method suppresses all exceptions.
  *
  * @param translateToToolset something that maps a String into an array of
- * toolset elements; defaults to a method ref to {@link prebuiltQualityToolset#basic}
+ * toolset elements; defaults to a method ref to {@link reportQuality#basic}
  * @return nothing
  * @see androidBuildScriptInject#call
  */
-def call(Function<String, List> translateToToolset = prebuiltQualityToolset.&basic) {
+def call(Function<String, List> translateToToolset = reportQuality.&basic) {
 	try {
 		// See if this project opted into a custom set of quality checks
 		if (env.QUALITY_SERVICES instanceof String && env.QUALITY_SERVICES.length() > 0) {
@@ -80,11 +80,11 @@ private void legacy() {
  *
  * @author Philip Cohn-Cort (Fuzz)
  * @param translateToToolset something that maps a String into an array of
- * toolset elements; defaults to a method ref to {@link prebuiltQualityToolset#basic}
+ * toolset elements; defaults to a method ref to {@link reportQuality#basic}
  * @return nothing
- * @see prebuiltQualityToolset#android
+ * @see reportQuality#android
  */
-def collateIssues(Function<String, List> translateToToolset = prebuiltQualityToolset.&basic) {
+def collateIssues(Function<String, List> translateToToolset = reportQuality.&basic) {
 	final String services = env.QUALITY_SERVICES
 
 	try {
@@ -102,5 +102,105 @@ def collateIssues(Function<String, List> translateToToolset = prebuiltQualityToo
 	} catch (RuntimeException unexpected) {
 		println "One problem: ${unexpected.message}"
 	}
+}
+
+
+/**
+ * This looks for the base set of quality checks.
+ * <p>
+ *     Designed to work well with the Warnings Next Generation
+ *     plugin, as executed by e.g. {@link reportQuality#collateIssues}.
+ * </p>
+ *
+ * @param services unused
+ * @return a list of tools that make sense for this situation
+ * @see reportQuality#android
+ */
+List basic(String services) {
+	List toolset = [
+			taskScanner(
+					excludePattern: '**/build/**, **/node_modules/**, qualityReports/**',
+					highTags: 'FIXME,shit,fuck,suck',
+					ignoreCase: true,
+					includePattern: '**/*.swift, **/*.java, **/*.ts, **/*.kt, **/*.xml, **/*.m, **/*.h, **/*.c, **/*.yml, **/*.gradle',
+					lowTags: 'deprecated',
+					normalTags: 'TODO'
+			),
+			// NB: Most linters (including SwiftLint and ESLint) can create CheckStyle-format XML files.
+			checkStyle(
+					pattern: '**/checkstyle-result.xml, **/checkstyle.xml, **/*-lint.xml',
+					reportEncoding: 'UTF-8',
+					skipSymbolicLinks: true
+			),
+			cpd(
+					highThreshold: 120,
+					pattern: '**/cpd.xml, **/cpdCheck.xml',
+					reportEncoding: 'UTF-8',
+					skipSymbolicLinks: true
+			)
+	]
+	return toolset
+}
+
+/**
+ * Choose from a decent set of tools that we typically associate
+ * with Android projects.
+ * <p>
+ *     Strict super-set of {@link reportQuality#basic}.
+ * </p>
+ * <p>
+ *     Designed to work well with the Warnings Next Generation
+ *     plugin, as executed by e.g. {@link reportQuality#collateIssues}.
+ * </p>
+ *
+ * @param services unused
+ * @return a list of tools that make sense for this situation
+ */
+List android(String services) {
+	// By default, we should always look for incomplete tasks (like TODOs).
+	List toolset = basic(services)
+
+	[
+			javaDoc(),
+			androidLintParser(pattern: '**/androidLint.xml', reportEncoding: 'UTF-8', skipSymbolicLinks: true),
+			pmdParser()
+	].forEach {
+		toolset.add(it)
+	}
+
+	// Minor sanity check in case the plugin API changes significantly
+	println "Toolset: " + toolset.getClass()
+
+	return toolset
+}
+
+/**
+ * Choose from a decent set of tools that we typically associate
+ * with iOS projects.
+ * <p>
+ *     Strict super-set of {@link reportQuality#basic}.
+ * </p>
+ * <p>
+ *     Designed to work well with the Warnings Next Generation
+ *     plugin, as executed by e.g. {@link reportQuality#collateIssues}.
+ * </p>
+ *
+ * @param services unused
+ * @return a list of tools that make sense for this situation
+ */
+List ios(String services) {
+	// By default, we should always look for incomplete tasks (like TODOs).
+	List toolset = basic(services)
+
+	[
+			clang()
+	].forEach {
+		toolset.add(it)
+	}
+
+	// Minor sanity check in case the plugin API changes significantly
+	println "Toolset: " + toolset.getClass()
+
+	return toolset
 }
 
