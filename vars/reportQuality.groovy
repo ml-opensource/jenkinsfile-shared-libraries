@@ -20,7 +20,7 @@ import java.util.function.Function
  *         <li>Passing in a non-null transform function</li>
  *     </ol>
  *     For the exact list of tools please refer to the documentation on {@link reportQuality#basic},
- *     {@link reportQuality#android}, and {@link reportQuality#ios}.
+ *    ~ {@link reportQuality#android}, and {@link reportQuality#ios}.
  * </p>
  * <p>
  *     Regardless of what happens, this method will conclude by collecting any
@@ -38,20 +38,28 @@ import java.util.function.Function
 def call(Function<String, List> translateToToolset = null) {
 	try {
 		// See if this project opted into a custom set of quality checks
-		if (env.QUALITY_SERVICES instanceof String && env.QUALITY_SERVICES.length() > 0) {
+		Object check = env.QUALITY_SERVICES
+		if (check instanceof String && check.length() > 0) {
+			String services = check as String
+
+			println "Using the modern code-path to cater to " + services + " services."
+
+			Closure<List> translateClosure
 			if (translateToToolset == null) {
 				// Perform some auto-detection:
 				if (env.IS_ANDROID == 'true') {
-					translateToToolset = reportQuality.&android
+					translateClosure = { android(services) }
 				} else if (env.IS_IOS == 'true') {
-					translateToToolset = reportQuality.&ios
+					translateClosure = { ios(services) }
 				} else if (env.IS_WEB == 'true') {
-					translateToToolset = reportQuality.&web
+					translateClosure = { web(services) }
 				} else {
-					translateToToolset = reportQuality.&basic
+					translateClosure = { basic(services) }
 				}
+			} else {
+				translateClosure = { return translateToToolset(services) }
 			}
-			collateIssues(translateToToolset)
+			collateIssues(translateClosure)
 		} else {
 			legacy()
 		}
@@ -77,6 +85,8 @@ def call(Function<String, List> translateToToolset = null) {
  * @deprecated this is an internal transition method. Please migrate to the modern toolset.
  */
 private void legacy() {
+	println "Using the legacy code-path; consider defining a string value for QUALITY_SERVICES in your pipeline's environment."
+
 	checkstyle canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '**/*-lint.xml, **/*checkstyle.xml', unHealthy: ''
 	pmd canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '**/*pmd.xml', unHealthy: ''
 	dry canComputeNew: false, defaultEncoding: '', healthy: '', pattern: '**/*cpd.xml, **/cpdCheck.xml', unHealthy: ''
@@ -97,7 +107,7 @@ private void legacy() {
  *     </a> for a detailed introduction to the syntax.
  * </p>
  * <p>
- *     The .& syntax in our default parameter is that of a method reference.
+ *     The .& syntax in some of the inline code is that of a method reference.
  *     I generally recommend <a href="https://dzone.com/articles/higher-order-functions-groovy-">
  *         Higher-Order Functions with Groovy
  *     </a>
@@ -105,18 +115,16 @@ private void legacy() {
  * </p>
  *
  * @author Philip Cohn-Cort (Fuzz)
- * @param translateToToolset something that maps a String into an array of
- * toolset elements; defaults to a method ref to {@link reportQuality#basic}
+ * @param translateToToolset something that returns an array of
+ * toolset elements; defaults to a curried method ref to {@link reportQuality#basic}
  * @return nothing
  * @see reportQuality#android
  */
-def collateIssues(Function<String, List> translateToToolset = reportQuality.&basic) {
-	final String services = env.QUALITY_SERVICES
+void collateIssues(Closure<List> translateToToolset) {
 
 	try {
-		println "Services: \n- " + services
 
-		List toolset = translateToToolset(services)
+		List toolset = translateToToolset()
 
 		println "Toolset is as follows: ${toolset}"
 
@@ -152,6 +160,7 @@ def collateIssues(Function<String, List> translateToToolset = reportQuality.&bas
  * @see reportQuality#android
  * @see reportQuality#ios
  */
+@NonCPS
 List basic(String services) {
 	List toolset = [
 			taskScanner(
@@ -204,6 +213,7 @@ List basic(String services) {
  * @param services unused
  * @return a list of tools that make sense for this situation
  */
+@NonCPS
 List android(String services) {
 	// By default, we should always look for incomplete tasks (like TODOs), checkstyle files, and copy-pasted text.
 	List toolset = basic(services)
@@ -242,6 +252,7 @@ List android(String services) {
  * @param services unused
  * @return a list of tools that make sense for this situation
  */
+@NonCPS
 List ios(String services) {
 	// By default, we should always look for incomplete tasks (like TODOs), checkstyle files, and copy-pasted text.
 	List toolset = basic(services)
@@ -277,6 +288,7 @@ List ios(String services) {
  * @param services unused
  * @return a list of tools that make sense for this situation
  */
+@NonCPS
 List web(String services) {
 	// By default, we should always look for incomplete tasks (like TODOs), checkstyle files, and copy-pasted text.
 	List toolset = basic(services)
