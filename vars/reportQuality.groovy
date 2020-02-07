@@ -1,4 +1,3 @@
-import java.util.function.Function
 
 /**
  * This method collates the findings of a set of code quality checks.
@@ -29,35 +28,36 @@ import java.util.function.Function
  * </p>
  * BE WARNED: This method suppresses all exceptions.
  *
- * @param translateToToolset something that maps a String into an array of
- * toolset elements; if null, we will use {@link reportQuality#basic},
- * {@link reportQuality#android}, and/or {@link reportQuality#ios}
+ * @param preferredToolset something that returns an array of toolset elements;
+ * if null, we will use {@link reportQuality#basic},
+ * {@link reportQuality#android}, {@link reportQuality#ios}, and/or
+ * {@link reportQuality#web}
  * @return nothing
  * @see androidBuildScriptInject#call
  */
-def call(Function<String, List> translateToToolset = null) {
+def call(Closure<List> preferredToolset = null) {
 	try {
 		// See if this project opted into a custom set of quality checks
 		Object check = env.QUALITY_SERVICES
 		if (check instanceof String && check.length() > 0) {
 			String services = check as String
 
-			println "Using the modern code-path to cater to " + services + " services."
+			println "Using the modern code-path to cater to \'" + services + "\' services."
 
 			Closure<List> translateClosure
-			if (translateToToolset == null) {
+			if (preferredToolset == null) {
 				// Perform some auto-detection:
 				if (env.IS_ANDROID == 'true') {
-					translateClosure = { android(services) }
+					translateClosure = { android() }
 				} else if (env.IS_IOS == 'true') {
-					translateClosure = { ios(services) }
+					translateClosure = { ios() }
 				} else if (env.IS_WEB == 'true') {
-					translateClosure = { web(services) }
+					translateClosure = { web() }
 				} else {
-					translateClosure = { basic(services) }
+					translateClosure = { basic() }
 				}
 			} else {
-				translateClosure = { return translateToToolset(services) }
+				translateClosure = preferredToolset
 			}
 			collateIssues(translateClosure)
 		} else {
@@ -155,13 +155,12 @@ void collateIssues(Closure<List> translateToToolset) {
  *     </ul>
  * </p>
  *
- * @param services unused
  * @return a list of tools that make sense for this situation
  * @see reportQuality#android
  * @see reportQuality#ios
  */
 @NonCPS
-List basic(String services) {
+List basic() {
 	List toolset = [
 			taskScanner(
 					excludePattern: '**/build/**, **/node_modules/**, qualityReports/**',
@@ -210,13 +209,12 @@ List basic(String services) {
  *     </ul>
  * </p>
  *
- * @param services unused
  * @return a list of tools that make sense for this situation
  */
 @NonCPS
-List android(String services) {
+List android() {
 	// By default, we should always look for incomplete tasks (like TODOs), checkstyle files, and copy-pasted text.
-	List toolset = basic(services)
+	List toolset = basic()
 
 	[
 			javaDoc(),
@@ -249,13 +247,12 @@ List android(String services) {
  *     </ul>
  * </p>
  *
- * @param services unused
  * @return a list of tools that make sense for this situation
  */
 @NonCPS
-List ios(String services) {
+List ios() {
 	// By default, we should always look for incomplete tasks (like TODOs), checkstyle files, and copy-pasted text.
-	List toolset = basic(services)
+	List toolset = basic()
 
 	[
 			clang()
@@ -285,13 +282,12 @@ List ios(String services) {
  *     </ul>
  * </p>
  *
- * @param services unused
  * @return a list of tools that make sense for this situation
  */
 @NonCPS
-List web(String services) {
+List web() {
 	// By default, we should always look for incomplete tasks (like TODOs), checkstyle files, and copy-pasted text.
-	List toolset = basic(services)
+	List toolset = basic()
 
 	println "Including the default Web Quality toolset..."
 
