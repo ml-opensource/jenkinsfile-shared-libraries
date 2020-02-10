@@ -10,7 +10,7 @@
  *     </ul>
  *     See {@link uatStage} for assistance with integration tests and with
  *     tests stored in external repositories. For other code quality metrics,
- *     try {@link standardReportArchives}.
+ *     try {@link reportQuality#call}.
  * </p>
  * <p>
  *     This method suppresses all exceptions, but it <em>will</em> set

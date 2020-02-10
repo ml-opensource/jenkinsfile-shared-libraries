@@ -5,6 +5,10 @@
  *     Note that this method always defines 'env.IS_WEB' as true - non-web
  *     projects are asked to use alternative build scripts.
  * </p>
+ * <p>
+ *     Note that future calls to {@link reportQuality#call} may be affected
+ *     by the value of `env.IS_WEB`.
+ * </p>
  *
  * @param baseURL representation of what, precisely, is being handled by Jenkins
  * here

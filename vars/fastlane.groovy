@@ -9,12 +9,19 @@
  *     Technically this can handle Android projects too, but
  *     we prefer {@link gradlew} for that in practice.
  * </p>
+ * <p>
+ *     Note that calling this function will first set 'IS_IOS' in the current
+ *     execution environment. Future calls to {@link reportQuality#call} may be
+ *     affected.
+ * </p>
  *
  * @param command something that Fastlane may understand
  * @return nothing
  */
 def call(String command) {
-    slack.qsh "fastlane ${command}"
+	env.IS_IOS = 'true'
+
+	slack.qsh "fastlane ${command}"
 }
 
 /**
