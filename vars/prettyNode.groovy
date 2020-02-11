@@ -59,19 +59,25 @@ def call(String nodeName = "", Boolean checkoutCode = true, Boolean onlyPR = tru
 					try {
 						body()
 					} catch(Throwable e) {
-						println "Detected error during custom node execution: ${e.message}"
+						println "Detected error during custom node execution."
 						if (isMultibranch()) {
-							slack.sendSlackError(e, "Unknown failure detected during _*Stage ${env.STAGE_NAME}*_")
+							try {
+								slack.sendSlackError(e, "Unknown failure detected during _*Stage ${env.STAGE_NAME}*_")
+							} catch (Throwable ignored) {
+							}
 						}
 						handledError = true
-        				throw e
+						throw e
 					}
 				}
 			}
 		} catch(Throwable e) {
 			println "Detected error in process of running (setup? teardown?) node: ${e.message}"
 			if (isMultibranch() && !handledError) {
-				slack.sendSlackError(e, "Unknown failure detected during _*Stage ${env.STAGE_NAME}*_")
+				try {
+					slack.sendSlackError(e, "Unknown failure detected during _*Stage ${env.STAGE_NAME}*_")
+				} catch (Throwable ignored) {
+				}
 			}
 			throw e
 		}
