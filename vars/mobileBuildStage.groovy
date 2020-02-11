@@ -23,14 +23,14 @@ def call(String prettyName = "", Closure body) {
 		archiveArtifacts '**/archive/*.ipa, **/outputs/apk/**/*.apk'
 		try {
 			storeFuzzArtifacts()
-		} catch(Throwable t) {
-			//running on a none fuzz jenkins server
+		} catch(Throwable ignored) {
+			// Running on a non-fuzz jenkins server
 		}
 		slack.buildMessage()
 		try {
 			build job: 'Fuzzwares Push Notifications', parameters: [string(name: 'JOB', value: jobName), string(name: 'NAME', value: prettyJobName), string(name: 'BUILD', value: "${env.BUILD_NUMBER}")], wait: false
-		} catch(Throwable t) {
-			//running on a none fuzz jenkins server
+		} catch(Throwable ignored) {
+			// Running on a non-fuzz jenkins server
 		}
 	}
 }
