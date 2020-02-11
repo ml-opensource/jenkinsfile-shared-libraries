@@ -66,7 +66,7 @@ def call(Closure<List> preferredToolset = null) {
 		sloccountPublish encoding: '', pattern: '**/*cloc.xml'
 	} catch (Exception ex) {
 		// Let us give voice to all errors
-		throw ex
+		println "An issue: ${ex.message}"
 	}
 }
 
