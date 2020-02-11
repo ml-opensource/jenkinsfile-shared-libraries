@@ -63,7 +63,11 @@ def call(Closure<List> preferredToolset = null) {
 		} else {
 			legacy()
 		}
-		sloccountPublish encoding: '', pattern: '**/*cloc.xml'
+		if (env.IS_WEB == 'true') {
+			echo 'Downstreams have reported instability caused by running the Sloccount plugin against web projects. Callers may still execute the sloccount command directly at their own risk.'
+		} else {
+			sloccountPublish encoding: '', pattern: '**/*cloc.xml'
+		}
 	} catch (Exception ex) {
 		// Let us give voice to all errors
 		println "An issue: ${ex.message}"
