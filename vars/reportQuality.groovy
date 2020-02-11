@@ -63,7 +63,10 @@ def call(Closure<List> preferredToolset = null) {
 		} else {
 			legacy()
 		}
-		sloccountPublish encoding: '', pattern: '**/*cloc.xml'
+		try {
+			sloccountPublish encoding: '', pattern: '**/*cloc.xml'
+		} catch (Throwable t) {
+		}
 	} catch (Exception ex) {
 		// Let us give voice to all errors
 		println "An issue: ${ex.message}"
