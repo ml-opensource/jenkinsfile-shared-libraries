@@ -134,6 +134,7 @@ void collateIssues(Closure<List> translateToToolset) {
 		recordIssues(
 				aggregatingResults: true,
 				enabledForFailure: true,
+				id: env.QUALITY_SERVICES,
 				tools: toolset
 		)
 	} catch (RuntimeException unexpected) {
