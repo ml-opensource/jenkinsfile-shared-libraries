@@ -1,9 +1,14 @@
 # jenkinsfile-shared-libraries
-Script library automatically accessible to our Jenkins Pipeline builds
+Primary script library for Fuzz's Jenkins Pipeline (Public variant).
 
-Our internal shared library for jenkins script to clean them. Open sourced to allow for easy hand off projects,
-all fuzz dependencies are wrapped in try catch blocks so if they fail your scripts won't fail. Please note this provided
-as a means of help you transition and should really be stripped for the pieces you need on your projects.
+Every Pipeline build executed on our infrastructure has access to the scripts located in the `vars` directory.
+
+Note that this repository exists to facilitate easy hand off of projects to and from the Fuzz engineering
+team; to that end, all Fuzz-specific references are wrapped in try-catch blocks so if they are not present
+your scripts won't fail.
+
+Please consider forking this repository for specific project needs. In unusual scenarios some of these functions
+are security risks and thus should be stripped out where possible.
 
 
 # License
