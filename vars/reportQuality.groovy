@@ -182,7 +182,7 @@ List basic() {
 			),
 			cpd(
 					highThreshold: 120,
-					pattern: '**/cpd.xml, **/cpdCheck.xml',
+					pattern: '**/*-cpd.xml, **/cpd.xml, **/cpdCheck.xml',
 					reportEncoding: 'UTF-8',
 					skipSymbolicLinks: true
 			)
