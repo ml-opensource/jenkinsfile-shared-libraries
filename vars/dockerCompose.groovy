@@ -11,7 +11,11 @@
  */
 def up(String file) {
 	stage("Docker Up") {
-		dockerCompose.down(file)
+		// TODO: Why does this not call 'dockerCompose.down()' here?
+		bash "docker-compose -f ${file} down"
+		bash "docker-compose -f ${file} rm --force --stop -v"
+		bash "docker system prune --all --force"
+		bash "docker volume prune --force"
 		slack.qbash "docker-compose -f ${file} up -d --build"
 	}
 }
@@ -31,6 +35,6 @@ def down(String file) {
 	stage("Docker Down") {
 		bash "docker-compose -f ${file} down"
 		bash "docker-compose -f ${file} rm --force --stop -v"
-		bash "docker system prune --all --volumes --force"
+		bash "docker system prune --all --force"
 	}
 }
