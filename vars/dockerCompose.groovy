@@ -11,7 +11,7 @@
  */
 def up(String file) {
 	stage("Docker Up") {
-		dockerCompose.down("${file}")
+		dockerCompose.down(file)
 		slack.qbash "docker-compose -f ${file} up -d --build"
 	}
 }
