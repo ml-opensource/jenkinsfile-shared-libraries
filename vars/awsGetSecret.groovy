@@ -14,7 +14,7 @@
  * @param version_stage is the secret version 
  * @return the stdout of the shell script
  */
-def awsGetSecretString(String aws_credentials, String secret_id, String aws_region = 'us-east-1', String version_stage = 'AWSCURRENT') {
+def string(String aws_credentials, String secret_id, String aws_region = 'us-east-1', String version_stage = 'AWSCURRENT') {
     awsCreds("${aws_credentials}") {
         sh(
             script: "aws secretsmanager get-secret-value \
