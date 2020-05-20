@@ -567,13 +567,17 @@ def sendSlackError(Exception e, String message) {
         // Local variable representing the response from Slack's API.
         def slackResponse = null
 
-        slackResponse = slackSend color: 'danger', channel: slackChannel, message: slackHeader() + message
-        slackSend color: 'danger', channel: slackResponse.threadId, message:"```${logsString}```"
+		echo "About to send header to the main channel..."
+		slackResponse = slackSend color: 'danger', channel: slackChannel, message: slackHeader() + message
+		echo "...and now trying to add details to that, in the new thread with id " + slackResponse.threadId
+		slackSend color: 'danger', channel: slackResponse.threadId, message:"```${logsString}```"
 
-        if (!errorMessage.contains("script returned exit code 1")) {
+		if (!errorMessage.contains("script returned exit code 1")) {
 			// Attach a warning emoji to the existing message...
+			echo "Attaching a response to the header message..."
 			slackResponse.addReaction("warning")
 			// ...and send a stacktrace to the DevOps monitoring channel
+			echo "...and making two additional notes elsewhere."
 			slackResponse = slackSend color: 'danger', channel: "jenkins_notifications", message: slackHeader() + "${e}"
 			slackSend color: 'danger', channel: slackResponse.threadId, message: e.printStackTrace()
         }
