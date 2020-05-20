@@ -563,12 +563,19 @@ def sendSlackError(Exception e, String message) {
         } 
         logsToPrint = logsToPrint.reverse()
         logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
-        slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message
-        slackSend color: 'danger', channel: slackChannel, message:"```${logsString}```"
+
+        // Local variable representing the response from Slack's API.
+        def slackResponse = null
+
+        slackResponse = slackSend color: 'danger', channel: slackChannel, message: slackHeader() + message
+        slackSend color: 'danger', channel: slackResponse.threadId, message:"```${logsString}```"
 
         if (!errorMessage.contains("script returned exit code 1")) {
-           slackSend color: 'danger', channel: "jenkins_notifications", message:slackHeader() + "${e}" 
-	   slackSend color: 'danger', channel: "jenkins_notifications", message:e.printStackTrace()  
+			// Attach a warning emoji to the existing message...
+			slackResponse.addReaction("warning")
+			// ...and send a stacktrace to the DevOps monitoring channel
+			slackResponse = slackSend color: 'danger', channel: "jenkins_notifications", message: slackHeader() + "${e}"
+			slackSend color: 'danger', channel: slackResponse.threadId, message: e.printStackTrace()
         }
     }
 }
