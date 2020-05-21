@@ -586,9 +586,13 @@ def sendSlackError(Exception e, String message) {
 
 def sendMessageWithLogs(String message) {
 	def logs = currentBuild.rawBuild.getLog(10).reverse()
-        logsString = logs.reverse().subList(1, logs.size()).join("\n")
-        slackSend color: 'warning', channel: slackChannel, message:message
-        slackSend color: 'warning', channel: slackChannel, message:"```${logsString}```"
+	logsString = logs.reverse().subList(1, logs.size()).join("\n")
+
+	// Local variable representing the response from Slack's API.
+	def slackResponse = null
+
+	slackResponse = slackSend color: 'warning', channel: slackChannel, message:message
+	slackSend color: 'warning', channel: slackResponse.threadId, message:"```${logsString}```"
 }
 
 /**
@@ -611,9 +615,13 @@ def buildMessage() {
 	def jobName = jobName()
 	def slackHeader = slackHeader()
 	def slackArtifacts = getArtifacts()
-	slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
+
+	// Local variable representing the response from Slack's API.
+	def slackResponse = null
+
+	slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
 	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
-	slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
+	slackSend color: 'good', channel: slackResponse.threadId, message: commitLogHeader + getCommitLog()
 }
 
 
@@ -635,12 +643,16 @@ def buildMessage() {
  * @see slack#uatMessage
  */
 def linkMessage(String inURL) {
-    def jobName = jobName()
-    def slackHeader = slackHeader()
-    def slackArtifacts = "${inURL}\n"
-    slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
-    def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
-    slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
+	def jobName = jobName()
+	def slackHeader = slackHeader()
+	def slackArtifacts = "${inURL}\n"
+
+	// Local variable representing the response from Slack's API.
+	def slackResponse = null
+
+	slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
+	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
+	slackSend color: 'good', channel: slackResponse.threadId, message: commitLogHeader + getCommitLog()
 }
 
 /**
