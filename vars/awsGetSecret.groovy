@@ -49,15 +49,16 @@ def string(String aws_credentials, String secret_id, String aws_region = 'us-eas
  */
 def rds(String aws_credentials, String secret_id, String secret_key, String aws_region = 'us-east-1', String version_stage = 'AWSCURRENT') {
     awsCreds("${aws_credentials}") {
-    sh(
-        script: "aws secretsmanager get-secret-value \
-        --secret-id ${secret_id} \
-        --version-stage ${version_stage} \
-        --region ${aws_region} \
-        --query SecretString \
-        --output text \
-        | jq '${secret_key}' \
-        | tr -d '\n'",
-        returnStdout: true
-    )
+        sh(
+            script: "aws secretsmanager get-secret-value \
+            --secret-id ${secret_id} \
+            --version-stage ${version_stage} \
+            --region ${aws_region} \
+            --query SecretString \
+            --output text \
+            | jq '${secret_key}' \
+            | tr -d '\n'",
+            returnStdout: true
+        )
+    }
 }
