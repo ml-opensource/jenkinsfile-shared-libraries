@@ -56,7 +56,7 @@ def rds(String aws_credentials, String secret_id, String secret_key, String aws_
             --region ${aws_region} \
             --query SecretString \
             --output text \
-            | jq '${secret_key}' \
+            | jq \'.${secret_key}\' \
             | tr -d '\n'",
             returnStdout: true
         )
