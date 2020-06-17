@@ -655,11 +655,10 @@ def sendMessageWithLogs(String message) {
 	def logs = currentBuild.rawBuild.getLog(10).reverse()
 	logsString = logs.reverse().subList(1, logs.size()).join("\n")
 
-	// Local variable representing the response from Slack's API.
-	def slackResponse = null
+	ensureThreadAnchor()
 
-	slackResponse = slackSend color: 'warning', channel: slackChannel, message:message
-	slackSend color: 'warning', channel: slackResponse.threadId, message:"```${logsString}```"
+	slackSend color: 'warning', channel: slackThread, message:message
+	slackSend color: 'warning', channel: slackThread, message:"```${logsString}```"
 }
 
 /**
@@ -673,7 +672,7 @@ def sendMessageWithLogs(String message) {
  *     <li>{@link slack#getCommitLog List of commit messages}</li>
  * </ul>
  *
- * @return a newline-separated string, as described above
+ * @return nothing
  * @see slack#linkMessage
  * @see slack#testMessage
  * @see slack#uatMessage
@@ -683,12 +682,11 @@ def buildMessage() {
 	def slackHeader = slackHeader()
 	def slackArtifacts = getArtifacts()
 
-	// Local variable representing the response from Slack's API.
-	def slackResponse = null
+	ensureThreadAnchor()
 
-	slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
+	slackSend color: 'good', channel: slackThread, message: slackHeader + slackArtifacts
 	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
-	slackSend color: 'good', channel: slackResponse.threadId, message: commitLogHeader + getCommitLog()
+	slackSend color: 'good', channel: slackThread, message: commitLogHeader + getCommitLog()
 }
 
 
@@ -704,7 +702,7 @@ def buildMessage() {
  * </ul>
  *
  * @param inURL http or https url for the deployed website
- * @return a newline-separated string, as described above
+ * @return nothing
  * @see slack#buildMessage
  * @see slack#testMessage
  * @see slack#uatMessage
@@ -714,12 +712,11 @@ def linkMessage(String inURL) {
 	def slackHeader = slackHeader()
 	def slackArtifacts = "${inURL}\n"
 
-	// Local variable representing the response from Slack's API.
-	def slackResponse = null
+	ensureThreadAnchor()
 
-	slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
+	slackSend color: 'good', channel: slackThread, message: slackHeader + slackArtifacts
 	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
-	slackSend color: 'good', channel: slackResponse.threadId, message: commitLogHeader + getCommitLog()
+	slackSend color: 'good', channel: slackThread, message: commitLogHeader + getCommitLog()
 }
 
 /**
@@ -735,7 +732,7 @@ def linkMessage(String inURL) {
  *     truly without associated tests should not be using {@link testStage}.
  * </p>
  *
- * @return a newline-separated string, as described above
+ * @return nothing
  * @see slack#buildMessage
  * @see slack#linkMessage
  * @see slack#uatMessage
@@ -746,15 +743,18 @@ def testMessage() {
 	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
 	def coverageSummary = "_*Code Coverage*_\n" + getCoverageSummary() + "\n"
 	def slackTestSummary = testSummary + coverageSummary
+
+	ensureThreadAnchor()
+
 	if (failedTest == null) {
 		if (testSummary.contains("No tests found")) {
-			slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary 
+			slackSend color: 'warning', channel: slackThread, message: slackHeader + slackTestSummary
 		} else {
-			slackSend color: 'good', channel: slackChannel, message: slackHeader + slackTestSummary 
+			slackSend color: 'good', channel: slackThread, message: slackHeader + slackTestSummary
 		}
 	} else {
-		slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
-		slackSend color: 'warning', channel: slackChannel, message: failedTest
+		slackSend color: 'warning', channel: slackThread, message: slackHeader + slackTestSummary
+		slackSend color: 'warning', channel: slackThread, message: failedTest
 	}
 }
 
@@ -805,15 +805,18 @@ def uatMessage() {
 		def testRailURL = "https://fuzz.testrail.io/index.php?/runs/overview/${env.TEST_RAIL_ID}"
 	}
 	def slackTestSummary = testSummary + reportMessage
+
+	ensureThreadAnchor()
+
 	if (failedTest == null) {
 		if (testSummary.contains("No tests found")) {
-			slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
+			slackSend color: 'warning', channel: slackThread, message: slackHeader + slackTestSummary
 		} else {
-			slackSend color: 'good', channel: slackChannel, message: slackHeader + slackTestSummary
+			slackSend color: 'good', channel: slackThread, message: slackHeader + slackTestSummary
 		}
 	} else {
-		slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
-		slackSend color: 'warning', channel: slackChannel, message: failedTest
+		slackSend color: 'warning', channel: slackThread, message: slackHeader + slackTestSummary
+		slackSend color: 'warning', channel: slackThread, message: failedTest
 	}
 }
 
