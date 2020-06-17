@@ -1,18 +1,12 @@
-import groovy.json.JsonSlurperClassic
-import java.lang.InterruptedException
-import groovy.json.JsonOutput
-import java.util.Optional
-import hudson.tasks.junit.TestResultAction
-import hudson.model.Actionable
-import hudson.tasks.junit.CaseResult
-import com.fuzz.artifactstore.ArtifactStoreAction
 import com.fuzz.artifactstore.ArtifactStore
+import com.fuzz.artifactstore.ArtifactStoreAction
+import hudson.plugins.clover.CloverBuildAction
 import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
-import hudson.plugins.clover.CloverBuildAction
-import hudson.plugins.clover.results.ProjectCoverage
-import hudson.plugins.clover.Ratio
-import groovy.transform.Field
+import hudson.tasks.junit.CaseResult
+import hudson.tasks.junit.TestResultAction
+
+
 
 /**
  * Get the name of the current build's Slack channel.
