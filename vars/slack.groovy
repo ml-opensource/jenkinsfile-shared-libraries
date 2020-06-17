@@ -19,11 +19,11 @@ import hudson.tasks.junit.TestResultAction
  * @return either env.SLACK_CHANNEL (if present) or "jenkins_notifications"
  */
 def getSlackChannel() {
-    if (env.SLACK_CHANNEL) {
-        return env.SLACK_CHANNEL
-    } else {
-        return "jenkins_notifications"
-    }
+	if (env.SLACK_CHANNEL) {
+		return env.SLACK_CHANNEL
+	} else {
+		return "jenkins_notifications"
+	}
 }
 
 /**
@@ -47,17 +47,17 @@ def getSlackChannel() {
  * @return the VCS commit hash of that build, or null if none could be found
  */
 def getLastSuccessfulCommit() {
-  def lastSuccessfulHash = null
-  def lastSuccessfulBuild = currentBuild.rawBuild.getPreviousSuccessfulBuild()
-  if ( lastSuccessfulBuild ) {
-    lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )
-  } else {
-    lastSuccessfulBuild = currentBuild.rawBuild.getPreviousBuild() 
-    if (lastSuccessfulBuild) {
-        lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )    
-    }   
-  }
-  return lastSuccessfulHash
+	def lastSuccessfulHash = null
+	def lastSuccessfulBuild = currentBuild.rawBuild.getPreviousSuccessfulBuild()
+	if ( lastSuccessfulBuild ) {
+		lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )
+	} else {
+		lastSuccessfulBuild = currentBuild.rawBuild.getPreviousBuild()
+		if (lastSuccessfulBuild) {
+				lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )
+		}
+	}
+	return lastSuccessfulHash
 }
 
 /**
@@ -73,12 +73,12 @@ def getLastSuccessfulCommit() {
  * @return a VCS commit hash, or null if none could be found
  */
 def commitHashForBuild( build ) {
-  def scmAction = build?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
-  def revision = scmAction?.revision
-  if (revision instanceof org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision) {
-  	return revision?.pullHash
-  }
-  return revision?.hash
+	def scmAction = build?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
+	def revision = scmAction?.revision
+	if (revision instanceof org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision) {
+		return revision?.pullHash
+	}
+	return revision?.hash
 }
 
 /**
@@ -97,7 +97,7 @@ def commitHashForBuild( build ) {
  */
 def getRepoUrl() {
 	def gituri = scm.repositories[0].uris[0].toASCIIString()
-    return gituri.replace(".git","").replace("git@github.com:","https://github.com/")
+	return gituri.replace(".git","").replace("git@github.com:","https://github.com/")
 }
 
 /**
@@ -113,11 +113,11 @@ def getRepoUrl() {
  * @see slack#commitHashForBuild
  */
 def getCurrentCommitLink() {
-    def currentCommit = commitHashForBuild( currentBuild.rawBuild )
-    def repoURL = getRepoUrl()
-    def commitURL = repoURL + "/commit/"
-    def shortHash = currentCommit[0..6]
-    return "(<${commitURL}${currentCommit}|${shortHash}>)"
+	def currentCommit = commitHashForBuild( currentBuild.rawBuild )
+	def repoURL = getRepoUrl()
+	def commitURL = repoURL + "/commit/"
+	def shortHash = currentCommit[0..6]
+	return "(<${commitURL}${currentCommit}|${shortHash}>)"
 }
 
 /**
@@ -142,25 +142,25 @@ def getCurrentCommitLink() {
  */
 def getCommitLog() {
 	def lastSuccessfulCommit = getLastSuccessfulCommit()
-    def currentCommit = commitHashForBuild( currentBuild.rawBuild )
-    def repoURL = getRepoUrl()
-    def commitURL = repoURL + "/commit/"
-    if (lastSuccessfulCommit) {
-        try {
-            commits = sh(
-                script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%H|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
-                returnStdout: true
-            )
-            if (commits.equals("")) {
-        	    return "No Changes (re-build?)"
-            }
-        } catch (Throwable t) {
-            return "Couldn't get changes (history got changed?)"
-        }
-        
-       	return commits
-    }
-    return "No Changes (re-build?)"
+	def currentCommit = commitHashForBuild( currentBuild.rawBuild )
+	def repoURL = getRepoUrl()
+	def commitURL = repoURL + "/commit/"
+	if (lastSuccessfulCommit) {
+		try {
+			commits = sh(
+				script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%H|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
+				returnStdout: true
+			)
+			if (commits.equals("")) {
+				return "No Changes (re-build?)"
+			}
+		} catch (Throwable t) {
+			return "Couldn't get changes (history got changed?)"
+		}
+
+		return commits
+	}
+	return "No Changes (re-build?)"
 }
 
 
@@ -189,23 +189,23 @@ def getCommitLog() {
  * @return a string containing the list of artifacts, or a message
  */
 def getArtifacts() { 
-    def summary = ""
-    try {
-	    def artifactStores = currentBuild.rawBuild.getAction(ArtifactStoreAction.class)
-	    if (artifactStores != null) {
-		    for(ArtifactStore artifact : artifactStores.artifacts) {
-			    def fileName = artifact.fileName
-			    def uuid = artifact.UDID
-			    summary += "<https://builds.fuzzhq.com/install.php?id=${uuid}|${fileName}>\n"
-		    }	    
-	    } else {
-		    summary = "No Artifacts"
-	    }
-    } catch (Throwable t) {
-	    println "Does not have Artifact Store Installed" 
-	    summary = "No Artifacts"
-    }
-    return summary
+	def summary = ""
+	try {
+		def artifactStores = currentBuild.rawBuild.getAction(ArtifactStoreAction.class)
+		if (artifactStores != null) {
+			for(ArtifactStore artifact : artifactStores.artifacts) {
+				def fileName = artifact.fileName
+				def uuid = artifact.UDID
+				summary += "<https://builds.fuzzhq.com/install.php?id=${uuid}|${fileName}>\n"
+			}
+		} else {
+			summary = "No Artifacts"
+		}
+	} catch (Throwable t) {
+		println "Does not have Artifact Store Installed"
+		summary = "No Artifacts"
+	}
+	return summary
 }
 
 /**
@@ -222,8 +222,8 @@ def getArtifacts() {
  * @see slack#getFailedTests
  */
 def hasTest() {
-    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
-    return testResultAction != null
+	def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+	return testResultAction != null
 }
 
 /**
@@ -251,35 +251,35 @@ def hasTest() {
  * @see slack#getFailedTests
  */
 def getTestSummary() {
-    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
-    def summary = ""
+	def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+	def summary = ""
 
-    if (testResultAction != null) {
-        orgtotal = testResultAction.getTotalCount()
-        orgfailed = testResultAction.getFailCount()
-        orgskipped = testResultAction.getSkipCount()
-	    
-        total = testResultAction.getTotalCount()
-        failed = testResultAction.getFailCount()
-        skipped = testResultAction.getSkipCount()
+	if (testResultAction != null) {
+		orgtotal = testResultAction.getTotalCount()
+		orgfailed = testResultAction.getFailCount()
+		orgskipped = testResultAction.getSkipCount()
 
-        if (env.SLACK_TEST_TOTAL && env.SLACK_TEST_TOTAL.toInteger() > 0) {
-            total = orgtotal - env.SLACK_TEST_TOTAL.toInteger()
-            failed = orgfailed - env.SLACK_TEST_FAILED.toInteger() 
-            skipped = orgskipped - env.SLACK_TEST_SKIPPED.toInteger()   
-        }
+		total = testResultAction.getTotalCount()
+		failed = testResultAction.getFailCount()
+		skipped = testResultAction.getSkipCount()
 
-        env.SLACK_TEST_TOTAL="${orgtotal}"
-        env.SLACK_TEST_FAILED="${orgfailed}"
-        env.SLACK_TEST_SKIPPED="${orgskipped}"
-	    
-        summary = "Passed: " + (total - failed - skipped)
-        summary = summary + (", Failed: " + failed)
-        summary = summary + (", Skipped: " + skipped)
-    } else {
-        summary = "No tests found"
-    }
-    return summary
+		if (env.SLACK_TEST_TOTAL && env.SLACK_TEST_TOTAL.toInteger() > 0) {
+			total = orgtotal - env.SLACK_TEST_TOTAL.toInteger()
+			failed = orgfailed - env.SLACK_TEST_FAILED.toInteger()
+			skipped = orgskipped - env.SLACK_TEST_SKIPPED.toInteger()
+		}
+
+		env.SLACK_TEST_TOTAL="${orgtotal}"
+		env.SLACK_TEST_FAILED="${orgfailed}"
+		env.SLACK_TEST_SKIPPED="${orgskipped}"
+
+		summary = "Passed: " + (total - failed - skipped)
+		summary = summary + (", Failed: " + failed)
+		summary = summary + (", Skipped: " + skipped)
+	} else {
+		summary = "No tests found"
+	}
+	return summary
 }
 
 /**
@@ -298,26 +298,26 @@ def getTestSummary() {
  * @see slack#getTestSummary
  */
 def getCoverageSummary() {
-    def coverageAction = currentBuild.rawBuild.getAction(CoberturaBuildAction.class)
-    def cloverCoverageAction = currentBuild.rawBuild.getAction(CloverBuildAction.class)
-    def summary = ""
+	def coverageAction = currentBuild.rawBuild.getAction(CoberturaBuildAction.class)
+	def cloverCoverageAction = currentBuild.rawBuild.getAction(CloverBuildAction.class)
+	def summary = ""
 
-    if (coverageAction != null) {
-        def lineData = coverageAction.getResult().getCoverage(CoverageMetric.LINE)
-        if (lineData != null) {
-        	summary = "Lines Covered: " + lineData.getPercentage() + "%"
-        } else {
-        	summary = "No Coverage Data"
-        }
-    } else if (cloverCoverageAction != null) {
-        def coverageData = cloverCoverageAction.getResult()
-        if (coverageData != null) {
-            summary = "Lines Covered: " + coverageData.getStatementCoverage().getPercentageStr()
-        }
-    } else {
-        summary = "No Coverage Data"
-    }
-    return summary
+	if (coverageAction != null) {
+		def lineData = coverageAction.getResult().getCoverage(CoverageMetric.LINE)
+		if (lineData != null) {
+			summary = "Lines Covered: " + lineData.getPercentage() + "%"
+		} else {
+			summary = "No Coverage Data"
+		}
+	} else if (cloverCoverageAction != null) {
+		def coverageData = cloverCoverageAction.getResult()
+		if (coverageData != null) {
+			summary = "Lines Covered: " + coverageData.getStatementCoverage().getPercentageStr()
+		}
+	} else {
+		summary = "No Coverage Data"
+	}
+	return summary
 }
 
 /**
@@ -339,31 +339,31 @@ def getCoverageSummary() {
  * @see slack#sendSlackError
  */
 def getFailedTests() {
-    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
-    if (testResultAction != null) {
-    	def failedTestsString = ""
-        def failedTests = testResultAction.getFailedTests()
+	def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+	if (testResultAction != null) {
+		def failedTestsString = ""
+		def failedTests = testResultAction.getFailedTests()
 
-        if (failedTests.size() > 9) {
-            failedTests = failedTests.subList(0, 8)
-        }
+		if (failedTests.size() > 9) {
+			failedTests = failedTests.subList(0, 8)
+		}
 
-        for(CaseResult cr : failedTests) {
-            if (cr.getFullDisplayName().contains("${env.STAGE_NAME} / ")) {
-                testDisplayName = cr.getFullDisplayName().replace("${env.STAGE_NAME} / ", "")
-                failedTestsString = failedTestsString + "${testDisplayName}:\n${cr.getErrorDetails()}\n\n"
-            } else if (!cr.getFullDisplayName().contains(" / ")) {
-                failedTestsString = failedTestsString + "${cr.getFullDisplayName()}:\n${cr.getErrorDetails()}\n\n"
-            }
-        }
-        if (failedTestsString.equals("")) {
-        	return null;
-        } else {
-        	return "```" + failedTestsString + "```"
-        }
-    } else {
-    	return null
-    }
+		for(CaseResult cr : failedTests) {
+			if (cr.getFullDisplayName().contains("${env.STAGE_NAME} / ")) {
+				testDisplayName = cr.getFullDisplayName().replace("${env.STAGE_NAME} / ", "")
+				failedTestsString = failedTestsString + "${testDisplayName}:\n${cr.getErrorDetails()}\n\n"
+			} else if (!cr.getFullDisplayName().contains(" / ")) {
+				failedTestsString = failedTestsString + "${cr.getFullDisplayName()}:\n${cr.getErrorDetails()}\n\n"
+			}
+		}
+		if (failedTestsString.equals("")) {
+			return null;
+		} else {
+			return "```" + failedTestsString + "```"
+		}
+	} else {
+		return null
+	}
 }
 
 /**
@@ -400,12 +400,12 @@ def qsh(command) {
  * @see slack#qsh
  */
 def qbash(command) {
-    try {
-        bash command  
-    } catch (Exception e) {
-        sendSlackError(e, "Failed to ${command} in _*Stage ${env.STAGE_NAME}*_")
-        throw e
-    }
+	try {
+		bash command
+	} catch (Exception e) {
+		sendSlackError(e, "Failed to ${command} in _*Stage ${env.STAGE_NAME}*_")
+		throw e
+	}
 }
 
 /**
@@ -441,12 +441,12 @@ def wrap(command, errorMessage) {
 def jobName() {
 	def job = "${env.JOB_NAME}"
 	def splits = job.split("/")
-    if (splits.length > 1) {
-	   def jobName = splits[splits.length - 2] + "/" + splits[splits.length - 1]
-	   return jobName
-    } else {
-        return job;
-    }
+	if (splits.length > 1) {
+		def jobName = splits[splits.length - 2] + "/" + splits[splits.length - 1]
+		return jobName
+	} else {
+		return job;
+	}
 }
 
 /**
@@ -500,7 +500,7 @@ def slackHeader() {
 	def slackHeader = "${jobName} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
 	def currentCommitLink = getCurrentCommitLink()
 	if (isPR()) {
-        slackHeader += "Branch _*${env.CHANGE_BRANCH}*_ ${currentCommitLink}\n"
+		slackHeader += "Branch _*${env.CHANGE_BRANCH}*_ ${currentCommitLink}\n"
 		slackHeader += PRMessage()
 	} else {
 		slackHeader += "Branch _*${env.BRANCH_NAME}*_ ${currentCommitLink}\n"
@@ -527,39 +527,39 @@ def slackHeader() {
  * @return nothing
  */
 def sendSlackError(Exception e, String message) {
-    def errorMessage = e.toString()
-    if (!(e instanceof InterruptedException) && env.SLACK_CHANNEL_NOTIFIED != "true" && !errorMessage.contains("Queue task was cancelled")) {
-        env.SLACK_CHANNEL_NOTIFIED = "true"
-        def logs = currentBuild.rawBuild.getLog(200).reverse()
-        def logsToPrint = []
-        def addToLogs = true
-        for(String logString : logs) {
-            if (logString.contains("from /Users")) { //iOS Ruby Exceptions
-            } else if (logString.contains("/lib/rails/") || logString.contains("/.rvm/gems/ruby")) { //iOS Ruby Exceptions
-            } else if(logString.contains("fastlane finished with errors")) {
-                if (logsToPrint.size() > 0) {
-                    addToLogs = false    
-                }
-            } else if(logString.contains("[Pipeline]")) { //Jenkins Pipeline Info
-                if (logsToPrint.size() > 0) {
-                    addToLogs = false    
-                }
-            } else if (logString.contains("at ") && (logString.contains(".java") || logString.contains(".kt") || logString.contains(".groovy"))) { //Gradle Exceptions
-            } else if (logString.contains("FAILURE: Build failed with an exception")) {
-                if (logsToPrint.size() > 0) {
-                    addToLogs = false    
-                }
-            } else {
-                if (addToLogs) {
-                    logsToPrint.add(logString)
-                }
-            }
-        } 
-        logsToPrint = logsToPrint.reverse()
-        logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
+	def errorMessage = e.toString()
+	if (!(e instanceof InterruptedException) && env.SLACK_CHANNEL_NOTIFIED != "true" && !errorMessage.contains("Queue task was cancelled")) {
+		env.SLACK_CHANNEL_NOTIFIED = "true"
+		def logs = currentBuild.rawBuild.getLog(200).reverse()
+		def logsToPrint = []
+		def addToLogs = true
+		for(String logString : logs) {
+			if (logString.contains("from /Users")) { //iOS Ruby Exceptions
+			} else if (logString.contains("/lib/rails/") || logString.contains("/.rvm/gems/ruby")) { //iOS Ruby Exceptions
+			} else if(logString.contains("fastlane finished with errors")) {
+				if (logsToPrint.size() > 0) {
+					addToLogs = false
+				}
+			} else if(logString.contains("[Pipeline]")) { //Jenkins Pipeline Info
+				if (logsToPrint.size() > 0) {
+					addToLogs = false
+				}
+			} else if (logString.contains("at ") && (logString.contains(".java") || logString.contains(".kt") || logString.contains(".groovy"))) { //Gradle Exceptions
+			} else if (logString.contains("FAILURE: Build failed with an exception")) {
+				if (logsToPrint.size() > 0) {
+					addToLogs = false
+				}
+			} else {
+				if (addToLogs) {
+					logsToPrint.add(logString)
+				}
+			}
+		}
+		logsToPrint = logsToPrint.reverse()
+		logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
 
-        // Local variable representing the response from Slack's API.
-        def slackResponse = null
+		// Local variable representing the response from Slack's API.
+		def slackResponse = null
 
 		echo "About to send header to the main channel..."
 		slackResponse = slackSend color: 'danger', channel: slackChannel, message: slackHeader() + message
@@ -574,8 +574,8 @@ def sendSlackError(Exception e, String message) {
 			echo "...and making two additional notes elsewhere."
 			slackResponse = slackSend color: 'danger', channel: "jenkins_notifications", message: slackHeader() + "${e}"
 			slackSend color: 'danger', channel: slackResponse.threadId, message: e.printStackTrace()
-        }
-    }
+		}
+	}
 }
 
 def sendMessageWithLogs(String message) {
@@ -694,14 +694,14 @@ def testMessage() {
  * @return false if there were test failures, true otherwise
  */
 def isProjectSuccessful() {
-    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
-    projectSuccessful = true
-    if (testResultAction != null) {
-        if (testResultAction.getFailCount() > 0) {
-            projectSuccessful = false  
-        }
-    }
-    return projectSuccessful;
+	def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+	projectSuccessful = true
+	if (testResultAction != null) {
+		if (testResultAction.getFailCount() > 0) {
+			projectSuccessful = false
+		}
+	}
+	return projectSuccessful;
 }
 
 /**
@@ -724,24 +724,24 @@ def isProjectSuccessful() {
  * @see uatStage#call
  */
 def uatMessage() {
-    def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
-    def failedTest = getFailedTests()
-    def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
-    def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Report/" + "\n"
-    if (env.TEST_RAIL_ID) {
-        def testRailURL = "https://fuzz.testrail.io/index.php?/runs/overview/${env.TEST_RAIL_ID}" 
-    }
-    def slackTestSummary = testSummary + reportMessage
-    if (failedTest == null) {
-        if (testSummary.contains("No tests found")) {
-            slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary 
-        } else {
-            slackSend color: 'good', channel: slackChannel, message: slackHeader + slackTestSummary 
-        }
-    } else {
-        slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
-        slackSend color: 'warning', channel: slackChannel, message: failedTest
-    }
+	def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
+	def failedTest = getFailedTests()
+	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
+	def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Report/" + "\n"
+	if (env.TEST_RAIL_ID) {
+		def testRailURL = "https://fuzz.testrail.io/index.php?/runs/overview/${env.TEST_RAIL_ID}"
+	}
+	def slackTestSummary = testSummary + reportMessage
+	if (failedTest == null) {
+		if (testSummary.contains("No tests found")) {
+			slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
+		} else {
+			slackSend color: 'good', channel: slackChannel, message: slackHeader + slackTestSummary
+		}
+	} else {
+		slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
+		slackSend color: 'warning', channel: slackChannel, message: failedTest
+	}
 }
 
 /**
