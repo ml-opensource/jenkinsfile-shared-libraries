@@ -33,6 +33,14 @@ def getSlackChannel() {
  *     called in this pipeline, this method will return
  *     {@link slack#getSlackChannel()} instead.
  * </p>
+ * <p>
+ *     Note: attempts to create threaded messages will not work
+ *     unless you have enabled the so-called 'bot user mode' on
+ *     the Jenkins host. Refer to
+ *     <a href="https://github.com/jenkinsci/slack-plugin#bot-user-mode">
+ *         this section</a> of the Slack Plugin GitHub repository
+ *     for details.
+ * </p>
  *
  * @return either env.SLACK_THREAD_ID (if present) or {@link slack#getSlackChannel()}
  */
@@ -620,13 +628,16 @@ def sendSlackError(Exception e, String message) {
 		logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
 
 		// 2. Send the logs to Slack.
+		ensureThreadAnchor()
+
 		// Local variable representing the response from Slack's API.
+		//noinspection GroovyUnusedAssignment
 		def slackResponse = null
 
-		echo "About to send header to the main channel..."
-		slackResponse = slackSend color: 'danger', channel: slackChannel, message: slackHeader() + message
-		echo "...and now trying to add details to that, in the new thread with id " + slackResponse.threadId
-		slackSend color: 'danger', channel: slackResponse.threadId, message:"```${logsString}```"
+		echo "About to send header to the existing thread..."
+		slackResponse = slackSend color: 'danger', channel: slackThread, message: slackHeader() + message
+		echo "...and now trying to add details to that."
+		slackSend color: 'danger', channel: slackThread, message:"```${logsString}```"
 
 		if (!errorMessage.contains("script returned exit code 1")) {
 			// Attach a warning emoji to the existing message...
