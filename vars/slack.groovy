@@ -27,6 +27,49 @@ def getSlackChannel() {
 }
 
 /**
+ * Get the id of the current build's Slack thread (if defined).
+ * <p>
+ *     If {@link slack#ensureThreadAnchor()} has not yet been
+ *     called in this pipeline, this method will return
+ *     {@link slack#getSlackChannel()} instead.
+ * </p>
+ *
+ * @return either env.SLACK_THREAD_ID (if present) or {@link slack#getSlackChannel()}
+ */
+def getSlackThread() {
+	if (env.SLACK_THREAD_ID) {
+		return env.SLACK_THREAD_ID
+	} else {
+		return slackChannel
+	}
+}
+
+/**
+ * Internal method, intended for use by anything calling <code>slackSend</code>.
+ * <p>
+ *     If env.SLACK_THREAD_ID is defined, this returns immediately.
+ * </p>
+ * <p>
+ *     Otherwise, this sends a very simple 'anchor' message to the
+ *     channel and records the 'threadid' associated with that message
+ *     in env.SLACK_THREAD_ID.
+ * </p>
+ *
+ * @see slack#getSlackThread()
+ * @see slack#slackHeader()
+ */
+private void ensureThreadAnchor() {
+	if (!env.SLACK_THREAD_ID) {
+		def slackHeader = slackHeader(false)
+
+		// Local variable representing the response from Slack's API.
+		def slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader
+		env.SLACK_THREAD_ID = slackResponse.threadId
+	}
+}
+
+
+/**
  * Internal method, intended for use by {@link slack#getCommitLog}.
  * <p>
  *     Determine what would be the best reference point for the
@@ -489,13 +532,19 @@ def isPR() {
  *     that sort of thing. This doesn't include a list of artifacts or the test
  *     status, as those can sometimes take up a lot of space.
  * </p>
+ * <p>
+ *     If the caller expects this message to be run on the primary Jenkins
+ *     server, it is best to pass <code>false</code> for the 'withNode'
+ *     parameter.
+ * </p>
  *
+ * @param withNode whether to include 'node' information. Defaults to true
  * @return a newline-separated string, ready for posting to Slack
  * @see slack#getTestSummary
  * @see slack#PRMessage
  * @see slack#echo
  */
-def slackHeader() {
+def slackHeader(boolean withNode = true) {
 	def jobName = jobName()
 	def slackHeader = "${jobName} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
 	def currentCommitLink = getCurrentCommitLink()
@@ -505,7 +554,9 @@ def slackHeader() {
 	} else {
 		slackHeader += "Branch _*${env.BRANCH_NAME}*_ ${currentCommitLink}\n"
 	}
-	slackHeader += "Built with _*${env.NODE_NAME}*_\n"
+	if (withNode) {
+		slackHeader += "Built with _*${env.NODE_NAME}*_\n"
+	}
 	return slackHeader
 }
 
