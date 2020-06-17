@@ -581,26 +581,36 @@ def sendSlackError(Exception e, String message) {
 	def errorMessage = e.toString()
 	if (!(e instanceof InterruptedException) && env.SLACK_CHANNEL_NOTIFIED != "true" && !errorMessage.contains("Queue task was cancelled")) {
 		env.SLACK_CHANNEL_NOTIFIED = "true"
+
+		// 1. Start with the last 200 lines.
 		def logs = currentBuild.rawBuild.getLog(200).reverse()
 		def logsToPrint = []
 		def addToLogs = true
 		for(String logString : logs) {
-			if (logString.contains("from /Users")) { //iOS Ruby Exceptions
-			} else if (logString.contains("/lib/rails/") || logString.contains("/.rvm/gems/ruby")) { //iOS Ruby Exceptions
+			// Collate only logs that we care about.
+			if (logString.contains("from /Users")) {
+				// In the middle of a Ruby Exception. Skip this line.
+			} else if (logString.contains("/lib/rails/") || logString.contains("/.rvm/gems/ruby")) {
+				// In the middle of a Ruby Info Message. Skip this line.
 			} else if(logString.contains("fastlane finished with errors")) {
+				// Terminator for iOS fastlane errors. If we have a message, ignore all following lines.
 				if (logsToPrint.size() > 0) {
 					addToLogs = false
 				}
-			} else if(logString.contains("[Pipeline]")) { //Jenkins Pipeline Info
+			} else if(logString.contains("[Pipeline]")) {
+				// Terminator for Jenkins Pipeline Info. If we have a message, ignore all following lines.
 				if (logsToPrint.size() > 0) {
 					addToLogs = false
 				}
-			} else if (logString.contains("at ") && (logString.contains(".java") || logString.contains(".kt") || logString.contains(".groovy"))) { //Gradle Exceptions
+			} else if (logString.contains("at ") && (logString.contains(".java") || logString.contains(".kt") || logString.contains(".groovy"))) {
+				// In the middle of a JVM Exception. Skip this line.
 			} else if (logString.contains("FAILURE: Build failed with an exception")) {
+				// Terminator for JVM Exception. If we have a message, ignore all following lines.
 				if (logsToPrint.size() > 0) {
 					addToLogs = false
 				}
 			} else {
+				// Add this line to the array.
 				if (addToLogs) {
 					logsToPrint.add(logString)
 				}
@@ -609,6 +619,7 @@ def sendSlackError(Exception e, String message) {
 		logsToPrint = logsToPrint.reverse()
 		logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
 
+		// 2. Send the logs to Slack.
 		// Local variable representing the response from Slack's API.
 		def slackResponse = null
 
