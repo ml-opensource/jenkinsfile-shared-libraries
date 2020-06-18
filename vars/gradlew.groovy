@@ -30,9 +30,9 @@ def assemble(Boolean refresh = false, String additional = "", Closure body = nul
 		body()
 	}
 	if (refresh) {
-		gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER} --refresh-dependencies --stacktrace --info ${additional}"
+		gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER} --refresh-dependencies --stacktrace ${additional}"
 	} else {
-		gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER} --stacktrace --info ${additional}"
+		gradlew "assemble -Pbuild_number=${env.BUILD_NUMBER} --stacktrace ${additional}"
 	}
 }
 
