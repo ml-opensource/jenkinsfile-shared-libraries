@@ -68,7 +68,7 @@ def getSlackThread() {
  */
 private void ensureThreadAnchor() {
 	if (!env.SLACK_THREAD_ID) {
-		def slackHeader = slackHeader(false)
+		def slackHeader = slackHeader()
 
 		// Local variable representing the response from Slack's API.
 		def slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader
@@ -538,23 +538,22 @@ def isPR() {
  * Internal method to create a nice-looking textual summary of the current build.
  * <p>
  *     Expect useful metadata here, such as the build number, the branch name,
- *     which node was used to run the build, whether this is a Pull Request,
- *     that sort of thing. This doesn't include a list of artifacts or the test
- *     status, as those can sometimes take up a lot of space.
+ *     whether this is a Pull Request, that sort of thing. This doesn't include
+ *     a list of artifacts or the test status, as those can sometimes take up a
+ *     lot of space.
  * </p>
  * <p>
- *     If the caller expects this message to be run on the primary Jenkins
- *     server, it is best to pass <code>false</code> for the 'withNode'
- *     parameter.
+ *     If the caller does not expect this message to be run on the primary
+ *     Jenkins server, it may be worth appending {@link slack#nodeDescription}
+ *     to the return value.
  * </p>
  *
- * @param withNode whether to include 'node' information. Defaults to true
  * @return a newline-separated string, ready for posting to Slack
  * @see slack#getTestSummary
  * @see slack#PRMessage
  * @see slack#echo
  */
-def slackHeader(boolean withNode = true) {
+def slackHeader() {
 	def jobName = jobName()
 	def slackHeader = "${jobName} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
 	def currentCommitLink = getCurrentCommitLink()
@@ -564,10 +563,27 @@ def slackHeader(boolean withNode = true) {
 	} else {
 		slackHeader += "Branch _*${env.BRANCH_NAME}*_ ${currentCommitLink}\n"
 	}
-	if (withNode) {
-		slackHeader += "Built with _*${env.NODE_NAME}*_\n"
-	}
 	return slackHeader
+}
+
+/**
+ * Internal method to create a short textual summary of the current Jenkins Node.
+ * <p>
+ *     A build may take place over the course of multiple different nodes. This
+ *     will only return information about the current one.
+ * </p>
+ * <p>
+ *     If the caller expects this message to be run on the primary Jenkins
+ *     server, it is best to avoid this.
+ * </p>
+ *
+ * @return a short newline-terminated string, ready for posting to Slack
+ * @see slack#getTestSummary
+ * @see slack#PRMessage
+ * @see slack#echo
+ */
+String nodeDescription() {
+	return "Built with _*${env.NODE_NAME}*_\n"
 }
 
 /**
@@ -640,7 +656,7 @@ def sendSlackError(Exception e, String message) {
 		def slackResponse = null
 
 		echo "About to send header to the existing thread..."
-		slackResponse = slackSend color: 'danger', channel: slackThread, message: slackHeader() + message
+		slackResponse = slackSend color: 'danger', channel: slackThread, message: nodeDescription() + message
 		echo "...and now trying to add details to that."
 		slackSend color: 'danger', channel: slackThread, message:"```${logsString}```"
 
@@ -650,7 +666,9 @@ def sendSlackError(Exception e, String message) {
 			slackResponse.addReaction("no_entry_sign")
 			// ...and send a stacktrace to the DevOps monitoring channel
 			echo "...and making two additional notes elsewhere."
-			slackResponse = slackSend color: 'danger', channel: "jenkins_notifications", message: slackHeader() + "${e}"
+			String fullMessage = slackHeader() + nodeDescription() + "${e}"
+
+			slackResponse = slackSend color: 'danger', channel: "jenkins_notifications", message: fullMessage
 			slackSend color: 'danger', channel: slackResponse.threadId, message: e.printStackTrace()
 		}
 	}
@@ -669,7 +687,7 @@ def sendMessageWithLogs(String message) {
 /**
  * Send a 'Build Complete!' Slack message including
  * <ul>
- *     <li>{@link slack#slackHeader Standard header}</li>
+ *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link slack#getArtifacts List of artifacts on current build}</li>
  *     <li>{@link slack#jobName Job name}</li>
  *     <li>Build number</li>
@@ -684,12 +702,12 @@ def sendMessageWithLogs(String message) {
  */
 def buildMessage() {
 	def jobName = jobName()
-	def slackHeader = slackHeader()
+	def node = nodeDescription()
 	def slackArtifacts = getArtifacts()
 
 	ensureThreadAnchor()
 
-	slackSend color: 'good', channel: slackThread, message: slackHeader + slackArtifacts
+	slackSend color: 'good', channel: slackThread, message: node + slackArtifacts
 	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
 	slackSend color: 'good', channel: slackThread, message: commitLogHeader + getCommitLog()
 }
@@ -698,7 +716,7 @@ def buildMessage() {
 /**
  * Send a 'Website Deployed!' Slack message including
  * <ul>
- *     <li>{@link slack#slackHeader Standard header}</li>
+ *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link publishLink#call Link to the deployment}</li>
  *     <li>{@link slack#jobName Job name}</li>
  *     <li>Build number</li>
@@ -714,12 +732,12 @@ def buildMessage() {
  */
 def linkMessage(String inURL) {
 	def jobName = jobName()
-	def slackHeader = slackHeader()
+	def header = nodeDescription()
 	def slackArtifacts = "${inURL}\n"
 
 	ensureThreadAnchor()
 
-	slackSend color: 'good', channel: slackThread, message: slackHeader + slackArtifacts
+	slackSend color: 'good', channel: slackThread, message: header + slackArtifacts
 	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
 	slackSend color: 'good', channel: slackThread, message: commitLogHeader + getCommitLog()
 }
@@ -727,7 +745,7 @@ def linkMessage(String inURL) {
 /**
  * Send a 'Test Suite Complete!' Slack message including
  * <ul>
- *     <li>{@link slack#slackHeader Standard header}</li>
+ *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link slack#getTestSummary Key stats on the test 'health'}</li>
  *     <li>{@link slack#getCoverageSummary Code's test coverage, as a percentage}</li>
  *     <li>{@link slack#getFailedTests List of tests that failed} (if any)</li>
@@ -743,7 +761,7 @@ def linkMessage(String inURL) {
  * @see slack#uatMessage
  */
 def testMessage() {
-	def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
+	def header = nodeDescription() + "\n*Stage*: ${env.STAGE_NAME}\n"
 	def failedTest = getFailedTests()
 	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
 	def coverageSummary = "_*Code Coverage*_\n" + getCoverageSummary() + "\n"
@@ -753,12 +771,12 @@ def testMessage() {
 
 	if (failedTest == null) {
 		if (testSummary.contains("No tests found")) {
-			slackSend color: 'warning', channel: slackThread, message: slackHeader + slackTestSummary
+			slackSend color: 'warning', channel: slackThread, message: header + slackTestSummary
 		} else {
-			slackSend color: 'good', channel: slackThread, message: slackHeader + slackTestSummary
+			slackSend color: 'good', channel: slackThread, message: header + slackTestSummary
 		}
 	} else {
-		slackSend color: 'warning', channel: slackThread, message: slackHeader + slackTestSummary
+		slackSend color: 'warning', channel: slackThread, message: header + slackTestSummary
 		slackSend color: 'warning', channel: slackThread, message: failedTest
 	}
 }
@@ -785,7 +803,7 @@ def isProjectSuccessful() {
 /**
  * Send an 'Automation Test Suite Complete!' Slack message including
  * <ul>
- *     <li>{@link slack#slackHeader Standard header}</li>
+ *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link slack#getTestSummary Key stats on the test 'health'}</li>
  *     <li>{@link uatStage#reportExtents A precise visualization of automation test results}</li>
  *     <li>{@link slack#getFailedTests List of tests that failed} (if any)</li>
@@ -802,7 +820,7 @@ def isProjectSuccessful() {
  * @see uatStage#call
  */
 def uatMessage() {
-	def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
+	def header = nodeDescription() + "\n*Stage*: ${env.STAGE_NAME}\n"
 	def failedTest = getFailedTests()
 	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
 	def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Report/" + "\n"
@@ -815,12 +833,12 @@ def uatMessage() {
 
 	if (failedTest == null) {
 		if (testSummary.contains("No tests found")) {
-			slackSend color: 'warning', channel: slackThread, message: slackHeader + slackTestSummary
+			slackSend color: 'warning', channel: slackThread, message: header + slackTestSummary
 		} else {
-			slackSend color: 'good', channel: slackThread, message: slackHeader + slackTestSummary
+			slackSend color: 'good', channel: slackThread, message: header + slackTestSummary
 		}
 	} else {
-		slackSend color: 'warning', channel: slackThread, message: slackHeader + slackTestSummary
+		slackSend color: 'warning', channel: slackThread, message: header + slackTestSummary
 		slackSend color: 'warning', channel: slackThread, message: failedTest
 	}
 }
@@ -836,6 +854,6 @@ def uatMessage() {
  * @see slack#getSlackChannel()
  */
 def echo() {
-	def slackHeader = slackHeader()
-	slackSend color: 'good', channel: slackChannel, message: slackHeader
+	def header = slackHeader()
+	slackSend color: 'good', channel: slackChannel, message: header
 }
