@@ -7,6 +7,13 @@ import hudson.tasks.junit.CaseResult
 import hudson.tasks.junit.TestResultAction
 
 
+/**
+ * A 'SlackResponse' object representing the header of a thread of messages.
+ *
+ * @see slack#ensureThreadAnchor
+ */
+def threadAnchor = null
+
 
 /**
  * Get the name of the current build's Slack channel.
@@ -72,8 +79,8 @@ private void ensureThreadAnchor() {
 
 		// Local variable representing the response from Slack's API.
 		def slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader
-		// We keep around the original response as a header, so that we can attach emoji.
-		env.SLACK_THREAD_HEADER = slackResponse
+		// We keep around the original response to this, so that we can attach emoji.
+		threadAnchor = slackResponse
 		env.SLACK_THREAD_ID = slackResponse.threadId
 	}
 }
@@ -649,7 +656,7 @@ def sendSlackError(Exception e, String message) {
 		ensureThreadAnchor()
 
 		// Attach a warning emoji to the thread anchor
-		env.SLACK_THREAD_HEADER.addReaction("warning")
+		threadAnchor.addReaction("warning")
 
 		// Local variable representing the response from Slack's API.
 		//noinspection GroovyUnusedAssignment
