@@ -72,6 +72,8 @@ private void ensureThreadAnchor() {
 
 		// Local variable representing the response from Slack's API.
 		def slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader
+		// We keep around the original response as a header, so that we can attach emoji.
+		env.SLACK_THREAD_HEADER = slackResponse
 		env.SLACK_THREAD_ID = slackResponse.threadId
 	}
 }
@@ -630,6 +632,9 @@ def sendSlackError(Exception e, String message) {
 		// 2. Send the logs to Slack.
 		ensureThreadAnchor()
 
+		// Attach a warning emoji to the thread anchor
+		env.SLACK_THREAD_HEADER.addReaction("warning")
+
 		// Local variable representing the response from Slack's API.
 		//noinspection GroovyUnusedAssignment
 		def slackResponse = null
@@ -640,9 +645,9 @@ def sendSlackError(Exception e, String message) {
 		slackSend color: 'danger', channel: slackThread, message:"```${logsString}```"
 
 		if (!errorMessage.contains("script returned exit code 1")) {
-			// Attach a warning emoji to the existing message...
+			// Attach a no_entry_sign emoji to the existing message...
 			echo "Attaching a response to the header message..."
-			slackResponse.addReaction("warning")
+			slackResponse.addReaction("no_entry_sign")
 			// ...and send a stacktrace to the DevOps monitoring channel
 			echo "...and making two additional notes elsewhere."
 			slackResponse = slackSend color: 'danger', channel: "jenkins_notifications", message: slackHeader() + "${e}"
