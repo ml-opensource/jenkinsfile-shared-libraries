@@ -692,7 +692,31 @@ def sendMessageWithLogs(String message) {
 }
 
 /**
- * Send a 'Build Complete!' Slack message including
+ * Send a list of commit messages to Slack.
+ * <p>
+ *     Above the list we add a simple header with
+ *     <ul>
+ *         <li>{@link slack#jobName Job name}</li>
+ *         <li>Build number</li>
+ *         <li>Link to VCS changelog</li>
+ *     </ul>
+ *     The commits themselves are assembled by {@link slack#getCommitLog}.
+ * </p>
+ *
+ * @see slack#buildMessage
+ * @see slack#linkMessage
+ */
+void sendCommitLogMessage() {
+	def jobName = jobName()
+
+	ensureThreadAnchor()
+
+	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
+	slackSend color: 'good', channel: slackThread, message: commitLogHeader + getCommitLog()
+}
+
+/**
+ * Send up to two 'Build Complete!' Slack messages including
  * <ul>
  *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link slack#getArtifacts List of artifacts on current build}</li>
@@ -701,6 +725,9 @@ def sendMessageWithLogs(String message) {
  *     <li>Link to VCS changelog</li>
  *     <li>{@link slack#getCommitLog List of commit messages}</li>
  * </ul>
+ * <p>
+ *     We delegate the last four of those to {@link slack#sendCommitLogMessage}.
+ * </p>
  *
  * @return nothing
  * @see slack#linkMessage
@@ -708,20 +735,18 @@ def sendMessageWithLogs(String message) {
  * @see slack#uatMessage
  */
 def buildMessage() {
-	def jobName = jobName()
 	def node = nodeDescription()
 	def slackArtifacts = getArtifacts()
 
 	ensureThreadAnchor()
 
 	slackSend color: 'good', channel: slackThread, message: node + slackArtifacts
-	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
-	slackSend color: 'good', channel: slackThread, message: commitLogHeader + getCommitLog()
+	sendCommitLogMessage()
 }
 
 
 /**
- * Send a 'Website Deployed!' Slack message including
+ * Send up to two 'Website Deployed!' Slack messages including
  * <ul>
  *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link publishLink#call Link to the deployment}</li>
@@ -730,6 +755,9 @@ def buildMessage() {
  *     <li>Link to VCS changelog</li>
  *     <li>{@link slack#getCommitLog List of commit messages}</li>
  * </ul>
+ * <p>
+ *     We delegate the last four of those to {@link slack#sendCommitLogMessage}.
+ * </p>
  *
  * @param inURL http or https url for the deployed website
  * @return nothing
@@ -738,15 +766,13 @@ def buildMessage() {
  * @see slack#uatMessage
  */
 def linkMessage(String inURL) {
-	def jobName = jobName()
 	def header = nodeDescription()
 	def slackArtifacts = "${inURL}\n"
 
 	ensureThreadAnchor()
 
 	slackSend color: 'good', channel: slackThread, message: header + slackArtifacts
-	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
-	slackSend color: 'good', channel: slackThread, message: commitLogHeader + getCommitLog()
+	sendCommitLogMessage()
 }
 
 /**
