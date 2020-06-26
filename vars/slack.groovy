@@ -218,7 +218,14 @@ def getCommitLog() {
 			return "Couldn't get changes (history got changed?)"
 		}
 
-		return commits
+		// If we get here, there is at least one commit in the given range
+		int commitCount = sh(
+			script: "git rev-list --count \"^${lastSuccessfulCommit}\" ${currentCommit} | tr -d '\n'",
+			returnStdout: true
+		) as int
+
+		// If your workspace has a git emoji, we try to use it here
+		return ":git: commit count: ${commitCount}.\n ${commits}"
 	}
 	return "No Changes (re-build?)"
 }
