@@ -208,7 +208,7 @@ def getCommitLog() {
 	if (lastSuccessfulCommit) {
 		try {
 			commits = sh(
-				script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%H|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
+				script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%h|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
 				returnStdout: true
 			)
 			if (commits.equals("")) {
