@@ -9,9 +9,9 @@ import jenkins.plugins.slack.workflow.SlackResponse
 
 
 /**
- * Use the methods here to communicate with an instance of <a href="https://slack.com/">Slack</a>.
+ * Companion class to {@link slack#call}.
  */
-class slack {
+class slackExtras {
 
 /**
  * A 'SlackResponse' object representing the header of a thread of messages.
@@ -20,6 +20,14 @@ class slack {
  */
 static SlackResponse threadAnchor = null
 
+}
+
+/**
+ * Use the methods on this class to communicate with an instance of <a href="https://slack.com/">Slack</a>.
+ *
+ * Note that this method, in particular, does nothing.
+ */
+void call() {
 }
 
 /**
@@ -69,7 +77,7 @@ def getSlackThread() {
 /**
  * Internal method, intended for use by anything calling <code>slackSend</code>.
  * <p>
- *     If env.SLACK_THREAD_ID and {@link slack#threadAnchor} are defined, this
+ *     If env.SLACK_THREAD_ID and {@link slackExtras#threadAnchor} are defined, this
  *     returns immediately.
  * </p>
  * <p>
@@ -82,13 +90,13 @@ def getSlackThread() {
  * @see slack#slackHeader()
  */
 private void ensureThreadAnchor() {
-	if (!env.SLACK_THREAD_ID || threadAnchor == null) {
+	if (!env.SLACK_THREAD_ID || slackExtras.threadAnchor == null) {
 		def slackHeader = slackHeader()
 
 		// Local variable representing the response from Slack's API.
 		def slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader
 		// We keep around the original response to this, so that we can attach emoji.
-		threadAnchor = slackResponse
+		slackExtras.threadAnchor = slackResponse
 		env.SLACK_THREAD_ID = slackResponse.threadId
 	}
 }
@@ -671,7 +679,7 @@ def sendSlackError(Exception e, String message) {
 		ensureThreadAnchor()
 
 		// Attach a warning emoji to the thread anchor
-		threadAnchor.addReaction("warning")
+		slackExtras.threadAnchor.addReaction("warning")
 
 		// Local variable representing the response from Slack's API.
 		//noinspection GroovyUnusedAssignment
