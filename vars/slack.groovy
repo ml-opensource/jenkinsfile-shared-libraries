@@ -75,10 +75,19 @@ def getSlackThread() {
 }
 
 /**
- * Internal method, intended for use by anything calling <code>slackSend</code>.
+ * Quick setup method for new pipelines.
  * <p>
- *     If env.SLACK_THREAD_ID and {@link slackExtras#threadAnchor} are defined, this
- *     returns immediately.
+ *     Most of the time, scripts won't need to use this directly. All
+ *     of the methods in this class that call <code>slackSend</code>
+ *     use this to make sure they're running in a sane environment.
+ * </p>
+ * <p>
+ *     For convenience, this method is aliased to {@link slack#echo}
+ *     and its alternative variant {@link slackEcho#call}.
+ * </p>
+ * <p>
+ *     If env.SLACK_THREAD_ID and {@link slackExtras#threadAnchor} are
+ *     defined, this returns immediately.
  * </p>
  * <p>
  *     Otherwise, this sends a very simple 'anchor' message to the
@@ -89,7 +98,7 @@ def getSlackThread() {
  * @see slack#getSlackThread()
  * @see slack#slackHeader()
  */
-private void ensureThreadAnchor() {
+void ensureThreadAnchor() {
 	if (!env.SLACK_THREAD_ID || slackExtras.threadAnchor == null) {
 		def slackHeader = slackHeader()
 
@@ -908,8 +917,8 @@ def uatMessage() {
  *
  * @return nothing
  * @see slack#getSlackChannel()
+ * @see slack#ensureThreadAnchor()
  */
 def echo() {
-	def header = slackHeader()
-	slackSend color: 'good', channel: slackChannel, message: header
+	ensureThreadAnchor()
 }
