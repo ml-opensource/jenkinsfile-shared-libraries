@@ -62,7 +62,8 @@ def getSlackThread() {
 /**
  * Internal method, intended for use by anything calling <code>slackSend</code>.
  * <p>
- *     If env.SLACK_THREAD_ID is defined, this returns immediately.
+ *     If env.SLACK_THREAD_ID and {@link slack#threadAnchor} are defined, this
+ *     returns immediately.
  * </p>
  * <p>
  *     Otherwise, this sends a very simple 'anchor' message to the
@@ -74,7 +75,7 @@ def getSlackThread() {
  * @see slack#slackHeader()
  */
 private void ensureThreadAnchor() {
-	if (!env.SLACK_THREAD_ID) {
+	if (!env.SLACK_THREAD_ID || threadAnchor == null) {
 		def slackHeader = slackHeader()
 
 		// Local variable representing the response from Slack's API.
