@@ -9,6 +9,11 @@ import jenkins.plugins.slack.workflow.SlackResponse
 
 
 /**
+ * Use the methods here to communicate with an instance of <a href="https://slack.com/">Slack</a>.
+ */
+class slack {
+
+/**
  * A 'SlackResponse' object representing the header of a thread of messages.
  *
  * @see slack#ensureThreadAnchor
@@ -898,4 +903,6 @@ def uatMessage() {
 def echo() {
 	def header = slackHeader()
 	slackSend color: 'good', channel: slackChannel, message: header
+}
+
 }
