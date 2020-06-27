@@ -5,6 +5,7 @@ import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
 import hudson.tasks.junit.CaseResult
 import hudson.tasks.junit.TestResultAction
+import jenkins.plugins.slack.workflow.SlackResponse
 
 
 /**
@@ -12,7 +13,7 @@ import hudson.tasks.junit.TestResultAction
  *
  * @see slack#ensureThreadAnchor
  */
-def threadAnchor = null
+static SlackResponse threadAnchor = null
 
 
 /**
