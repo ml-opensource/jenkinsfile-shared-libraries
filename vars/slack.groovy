@@ -20,6 +20,7 @@ class slack {
  */
 static SlackResponse threadAnchor = null
 
+}
 
 /**
  * Get the name of the current build's Slack channel.
@@ -903,6 +904,4 @@ def uatMessage() {
 def echo() {
 	def header = slackHeader()
 	slackSend color: 'good', channel: slackChannel, message: header
-}
-
 }
