@@ -1,18 +1,34 @@
-import groovy.json.JsonSlurperClassic
-import java.lang.InterruptedException
-import groovy.json.JsonOutput
-import java.util.Optional
-import hudson.tasks.junit.TestResultAction
-import hudson.model.Actionable
-import hudson.tasks.junit.CaseResult
-import com.fuzz.artifactstore.ArtifactStoreAction
 import com.fuzz.artifactstore.ArtifactStore
+import com.fuzz.artifactstore.ArtifactStoreAction
+import hudson.plugins.clover.CloverBuildAction
 import hudson.plugins.cobertura.CoberturaBuildAction
 import hudson.plugins.cobertura.targets.CoverageMetric
-import hudson.plugins.clover.CloverBuildAction
-import hudson.plugins.clover.results.ProjectCoverage
-import hudson.plugins.clover.Ratio
-import groovy.transform.Field
+import hudson.tasks.junit.CaseResult
+import hudson.tasks.junit.TestResultAction
+import jenkins.plugins.slack.workflow.SlackResponse
+
+
+/**
+ * Companion class to {@link slack#call}.
+ */
+class slackExtras {
+
+/**
+ * A 'SlackResponse' object representing the header of a thread of messages.
+ *
+ * @see slack#ensureThreadAnchor
+ */
+static SlackResponse threadAnchor = null
+
+}
+
+/**
+ * Use the methods on this class to communicate with an instance of <a href="https://slack.com/">Slack</a>.
+ *
+ * Note that this method, in particular, does nothing.
+ */
+void call() {
+}
 
 /**
  * Get the name of the current build's Slack channel.
@@ -25,12 +41,75 @@ import groovy.transform.Field
  * @return either env.SLACK_CHANNEL (if present) or "jenkins_notifications"
  */
 def getSlackChannel() {
-    if (env.SLACK_CHANNEL) {
-        return env.SLACK_CHANNEL
-    } else {
-        return "jenkins_notifications"
-    }
+	if (env.SLACK_CHANNEL) {
+		return env.SLACK_CHANNEL
+	} else {
+		return "jenkins_notifications"
+	}
 }
+
+/**
+ * Get the id of the current build's Slack thread (if defined).
+ * <p>
+ *     If {@link slack#ensureThreadAnchor()} has not yet been
+ *     called in this pipeline, this method will return
+ *     {@link slack#getSlackChannel()} instead.
+ * </p>
+ * <p>
+ *     Note: attempts to create threaded messages will not work
+ *     unless you have enabled the so-called 'bot user mode' on
+ *     the Jenkins host. Refer to
+ *     <a href="https://github.com/jenkinsci/slack-plugin#bot-user-mode">
+ *         this section</a> of the Slack Plugin GitHub repository
+ *     for details.
+ * </p>
+ *
+ * @return either env.SLACK_THREAD_ID (if present) or {@link slack#getSlackChannel()}
+ */
+def getSlackThread() {
+	if (env.SLACK_THREAD_ID) {
+		return env.SLACK_THREAD_ID
+	} else {
+		return slackChannel
+	}
+}
+
+/**
+ * Quick setup method for new pipelines.
+ * <p>
+ *     Most of the time, scripts won't need to use this directly. All
+ *     of the methods in this class that call <code>slackSend</code>
+ *     use this to make sure they're running in a sane environment.
+ * </p>
+ * <p>
+ *     For convenience, this method is aliased to {@link slack#echo}
+ *     and its alternative variant {@link slackEcho#call}.
+ * </p>
+ * <p>
+ *     If env.SLACK_THREAD_ID and {@link slackExtras#threadAnchor} are
+ *     defined, this returns immediately.
+ * </p>
+ * <p>
+ *     Otherwise, this sends a very simple 'anchor' message to the
+ *     channel and records the 'threadid' associated with that message
+ *     in env.SLACK_THREAD_ID.
+ * </p>
+ *
+ * @see slack#getSlackThread()
+ * @see slack#slackHeader()
+ */
+void ensureThreadAnchor() {
+	if (!env.SLACK_THREAD_ID || slackExtras.threadAnchor == null) {
+		def slackHeader = slackHeader()
+
+		// Local variable representing the response from Slack's API.
+		def slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader
+		// We keep around the original response to this, so that we can attach emoji.
+		slackExtras.threadAnchor = slackResponse
+		env.SLACK_THREAD_ID = slackResponse.threadId
+	}
+}
+
 
 /**
  * Internal method, intended for use by {@link slack#getCommitLog}.
@@ -53,17 +132,17 @@ def getSlackChannel() {
  * @return the VCS commit hash of that build, or null if none could be found
  */
 def getLastSuccessfulCommit() {
-  def lastSuccessfulHash = null
-  def lastSuccessfulBuild = currentBuild.rawBuild.getPreviousSuccessfulBuild()
-  if ( lastSuccessfulBuild ) {
-    lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )
-  } else {
-    lastSuccessfulBuild = currentBuild.rawBuild.getPreviousBuild() 
-    if (lastSuccessfulBuild) {
-        lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )    
-    }   
-  }
-  return lastSuccessfulHash
+	def lastSuccessfulHash = null
+	def lastSuccessfulBuild = currentBuild.rawBuild.getPreviousSuccessfulBuild()
+	if ( lastSuccessfulBuild ) {
+		lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )
+	} else {
+		lastSuccessfulBuild = currentBuild.rawBuild.getPreviousBuild()
+		if (lastSuccessfulBuild) {
+				lastSuccessfulHash = commitHashForBuild( lastSuccessfulBuild )
+		}
+	}
+	return lastSuccessfulHash
 }
 
 /**
@@ -79,12 +158,12 @@ def getLastSuccessfulCommit() {
  * @return a VCS commit hash, or null if none could be found
  */
 def commitHashForBuild( build ) {
-  def scmAction = build?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
-  def revision = scmAction?.revision
-  if (revision instanceof org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision) {
-  	return revision?.pullHash
-  }
-  return revision?.hash
+	def scmAction = build?.actions.find { action -> action instanceof jenkins.scm.api.SCMRevisionAction }
+	def revision = scmAction?.revision
+	if (revision instanceof org.jenkinsci.plugins.github_branch_source.PullRequestSCMRevision) {
+		return revision?.pullHash
+	}
+	return revision?.hash
 }
 
 /**
@@ -103,7 +182,7 @@ def commitHashForBuild( build ) {
  */
 def getRepoUrl() {
 	def gituri = scm.repositories[0].uris[0].toASCIIString()
-    return gituri.replace(".git","").replace("git@github.com:","https://github.com/")
+	return gituri.replace(".git","").replace("git@github.com:","https://github.com/")
 }
 
 /**
@@ -119,11 +198,11 @@ def getRepoUrl() {
  * @see slack#commitHashForBuild
  */
 def getCurrentCommitLink() {
-    def currentCommit = commitHashForBuild( currentBuild.rawBuild )
-    def repoURL = getRepoUrl()
-    def commitURL = repoURL + "/commit/"
-    def shortHash = currentCommit[0..6]
-    return "(<${commitURL}${currentCommit}|${shortHash}>)"
+	def currentCommit = commitHashForBuild( currentBuild.rawBuild )
+	def repoURL = getRepoUrl()
+	def commitURL = repoURL + "/commit/"
+	def shortHash = currentCommit[0..6]
+	return "(<${commitURL}${currentCommit}|${shortHash}>)"
 }
 
 /**
@@ -148,25 +227,32 @@ def getCurrentCommitLink() {
  */
 def getCommitLog() {
 	def lastSuccessfulCommit = getLastSuccessfulCommit()
-    def currentCommit = commitHashForBuild( currentBuild.rawBuild )
-    def repoURL = getRepoUrl()
-    def commitURL = repoURL + "/commit/"
-    if (lastSuccessfulCommit) {
-        try {
-            commits = sh(
-                script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%H|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
-                returnStdout: true
-            )
-            if (commits.equals("")) {
-        	    return "No Changes (re-build?)"
-            }
-        } catch (Throwable t) {
-            return "Couldn't get changes (history got changed?)"
-        }
-        
-       	return commits
-    }
-    return "No Changes (re-build?)"
+	def currentCommit = commitHashForBuild( currentBuild.rawBuild )
+	def repoURL = getRepoUrl()
+	def commitURL = repoURL + "/commit/"
+	if (lastSuccessfulCommit) {
+		try {
+			commits = sh(
+				script: "git log --pretty=format:'- %s%b [%an] (<${commitURL}%h|%h>) %n' ${currentCommit} \"^${lastSuccessfulCommit}\"",
+				returnStdout: true
+			)
+			if (commits.equals("")) {
+				return "No Changes (re-build?)"
+			}
+		} catch (Throwable t) {
+			return "Couldn't get changes (history got changed?)"
+		}
+
+		// If we get here, there is at least one commit in the given range
+		int commitCount = sh(
+			script: "git rev-list --count \"^${lastSuccessfulCommit}\" ${currentCommit} | tr -d '\n'",
+			returnStdout: true
+		) as int
+
+		// If your workspace has a git emoji, we try to use it here
+		return ":git: commit count: ${commitCount}.\n ${commits}"
+	}
+	return "No Changes (re-build?)"
 }
 
 
@@ -195,23 +281,23 @@ def getCommitLog() {
  * @return a string containing the list of artifacts, or a message
  */
 def getArtifacts() { 
-    def summary = ""
-    try {
-	    def artifactStores = currentBuild.rawBuild.getAction(ArtifactStoreAction.class)
-	    if (artifactStores != null) {
-		    for(ArtifactStore artifact : artifactStores.artifacts) {
-			    def fileName = artifact.fileName
-			    def uuid = artifact.UDID
-			    summary += "<https://builds.fuzzhq.com/install.php?id=${uuid}|${fileName}>\n"
-		    }	    
-	    } else {
-		    summary = "No Artifacts"
-	    }
-    } catch (Throwable t) {
-	    println "Does not have Artifact Store Installed" 
-	    summary = "No Artifacts"
-    }
-    return summary
+	def summary = ""
+	try {
+		def artifactStores = currentBuild.rawBuild.getAction(ArtifactStoreAction.class)
+		if (artifactStores != null) {
+			for(ArtifactStore artifact : artifactStores.artifacts) {
+				def fileName = artifact.fileName
+				def uuid = artifact.UDID
+				summary += "<https://builds.fuzzhq.com/install.php?id=${uuid}|${fileName}>\n"
+			}
+		} else {
+			summary = "No Artifacts"
+		}
+	} catch (Throwable t) {
+		println "Does not have Artifact Store Installed"
+		summary = "No Artifacts"
+	}
+	return summary
 }
 
 /**
@@ -228,8 +314,8 @@ def getArtifacts() {
  * @see slack#getFailedTests
  */
 def hasTest() {
-    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
-    return testResultAction != null
+	def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+	return testResultAction != null
 }
 
 /**
@@ -257,35 +343,35 @@ def hasTest() {
  * @see slack#getFailedTests
  */
 def getTestSummary() {
-    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
-    def summary = ""
+	def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+	def summary = ""
 
-    if (testResultAction != null) {
-        orgtotal = testResultAction.getTotalCount()
-        orgfailed = testResultAction.getFailCount()
-        orgskipped = testResultAction.getSkipCount()
-	    
-        total = testResultAction.getTotalCount()
-        failed = testResultAction.getFailCount()
-        skipped = testResultAction.getSkipCount()
+	if (testResultAction != null) {
+		orgtotal = testResultAction.getTotalCount()
+		orgfailed = testResultAction.getFailCount()
+		orgskipped = testResultAction.getSkipCount()
 
-        if (env.SLACK_TEST_TOTAL && env.SLACK_TEST_TOTAL.toInteger() > 0) {
-            total = orgtotal - env.SLACK_TEST_TOTAL.toInteger()
-            failed = orgfailed - env.SLACK_TEST_FAILED.toInteger() 
-            skipped = orgskipped - env.SLACK_TEST_SKIPPED.toInteger()   
-        }
+		total = testResultAction.getTotalCount()
+		failed = testResultAction.getFailCount()
+		skipped = testResultAction.getSkipCount()
 
-        env.SLACK_TEST_TOTAL="${orgtotal}"
-        env.SLACK_TEST_FAILED="${orgfailed}"
-        env.SLACK_TEST_SKIPPED="${orgskipped}"
-	    
-        summary = "Passed: " + (total - failed - skipped)
-        summary = summary + (", Failed: " + failed)
-        summary = summary + (", Skipped: " + skipped)
-    } else {
-        summary = "No tests found"
-    }
-    return summary
+		if (env.SLACK_TEST_TOTAL && env.SLACK_TEST_TOTAL.toInteger() > 0) {
+			total = orgtotal - env.SLACK_TEST_TOTAL.toInteger()
+			failed = orgfailed - env.SLACK_TEST_FAILED.toInteger()
+			skipped = orgskipped - env.SLACK_TEST_SKIPPED.toInteger()
+		}
+
+		env.SLACK_TEST_TOTAL="${orgtotal}"
+		env.SLACK_TEST_FAILED="${orgfailed}"
+		env.SLACK_TEST_SKIPPED="${orgskipped}"
+
+		summary = "Passed: " + (total - failed - skipped)
+		summary = summary + (", Failed: " + failed)
+		summary = summary + (", Skipped: " + skipped)
+	} else {
+		summary = "No tests found"
+	}
+	return summary
 }
 
 /**
@@ -304,26 +390,26 @@ def getTestSummary() {
  * @see slack#getTestSummary
  */
 def getCoverageSummary() {
-    def coverageAction = currentBuild.rawBuild.getAction(CoberturaBuildAction.class)
-    def cloverCoverageAction = currentBuild.rawBuild.getAction(CloverBuildAction.class)
-    def summary = ""
+	def coverageAction = currentBuild.rawBuild.getAction(CoberturaBuildAction.class)
+	def cloverCoverageAction = currentBuild.rawBuild.getAction(CloverBuildAction.class)
+	def summary = ""
 
-    if (coverageAction != null) {
-        def lineData = coverageAction.getResult().getCoverage(CoverageMetric.LINE)
-        if (lineData != null) {
-        	summary = "Lines Covered: " + lineData.getPercentage() + "%"
-        } else {
-        	summary = "No Coverage Data"
-        }
-    } else if (cloverCoverageAction != null) {
-        def coverageData = cloverCoverageAction.getResult()
-        if (coverageData != null) {
-            summary = "Lines Covered: " + coverageData.getStatementCoverage().getPercentageStr()
-        }
-    } else {
-        summary = "No Coverage Data"
-    }
-    return summary
+	if (coverageAction != null) {
+		def lineData = coverageAction.getResult().getCoverage(CoverageMetric.LINE)
+		if (lineData != null) {
+			summary = "Lines Covered: " + lineData.getPercentage() + "%"
+		} else {
+			summary = "No Coverage Data"
+		}
+	} else if (cloverCoverageAction != null) {
+		def coverageData = cloverCoverageAction.getResult()
+		if (coverageData != null) {
+			summary = "Lines Covered: " + coverageData.getStatementCoverage().getPercentageStr()
+		}
+	} else {
+		summary = "No Coverage Data"
+	}
+	return summary
 }
 
 /**
@@ -345,31 +431,31 @@ def getCoverageSummary() {
  * @see slack#sendSlackError
  */
 def getFailedTests() {
-    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
-    if (testResultAction != null) {
-    	def failedTestsString = ""
-        def failedTests = testResultAction.getFailedTests()
+	def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+	if (testResultAction != null) {
+		def failedTestsString = ""
+		def failedTests = testResultAction.getFailedTests()
 
-        if (failedTests.size() > 9) {
-            failedTests = failedTests.subList(0, 8)
-        }
+		if (failedTests.size() > 9) {
+			failedTests = failedTests.subList(0, 8)
+		}
 
-        for(CaseResult cr : failedTests) {
-            if (cr.getFullDisplayName().contains("${env.STAGE_NAME} / ")) {
-                testDisplayName = cr.getFullDisplayName().replace("${env.STAGE_NAME} / ", "")
-                failedTestsString = failedTestsString + "${testDisplayName}:\n${cr.getErrorDetails()}\n\n"
-            } else if (!cr.getFullDisplayName().contains(" / ")) {
-                failedTestsString = failedTestsString + "${cr.getFullDisplayName()}:\n${cr.getErrorDetails()}\n\n"
-            }
-        }
-        if (failedTestsString.equals("")) {
-        	return null;
-        } else {
-        	return "```" + failedTestsString + "```"
-        }
-    } else {
-    	return null
-    }
+		for(CaseResult cr : failedTests) {
+			if (cr.getFullDisplayName().contains("${env.STAGE_NAME} / ")) {
+				testDisplayName = cr.getFullDisplayName().replace("${env.STAGE_NAME} / ", "")
+				failedTestsString = failedTestsString + "${testDisplayName}:\n${cr.getErrorDetails()}\n\n"
+			} else if (!cr.getFullDisplayName().contains(" / ")) {
+				failedTestsString = failedTestsString + "${cr.getFullDisplayName()}:\n${cr.getErrorDetails()}\n\n"
+			}
+		}
+		if (failedTestsString.equals("")) {
+			return null;
+		} else {
+			return "```" + failedTestsString + "```"
+		}
+	} else {
+		return null
+	}
 }
 
 /**
@@ -406,12 +492,12 @@ def qsh(command) {
  * @see slack#qsh
  */
 def qbash(command) {
-    try {
-        bash command  
-    } catch (Exception e) {
-        sendSlackError(e, "Failed to ${command} in _*Stage ${env.STAGE_NAME}*_")
-        throw e
-    }
+	try {
+		bash command
+	} catch (Exception e) {
+		sendSlackError(e, "Failed to ${command} in _*Stage ${env.STAGE_NAME}*_")
+		throw e
+	}
 }
 
 /**
@@ -447,12 +533,12 @@ def wrap(command, errorMessage) {
 def jobName() {
 	def job = "${env.JOB_NAME}"
 	def splits = job.split("/")
-    if (splits.length > 1) {
-	   def jobName = splits[splits.length - 2] + "/" + splits[splits.length - 1]
-	   return jobName
-    } else {
-        return job;
-    }
+	if (splits.length > 1) {
+		def jobName = splits[splits.length - 2] + "/" + splits[splits.length - 1]
+		return jobName
+	} else {
+		return job;
+	}
 }
 
 /**
@@ -491,9 +577,14 @@ def isPR() {
  * Internal method to create a nice-looking textual summary of the current build.
  * <p>
  *     Expect useful metadata here, such as the build number, the branch name,
- *     which node was used to run the build, whether this is a Pull Request,
- *     that sort of thing. This doesn't include a list of artifacts or the test
- *     status, as those can sometimes take up a lot of space.
+ *     whether this is a Pull Request, that sort of thing. This doesn't include
+ *     a list of artifacts or the test status, as those can sometimes take up a
+ *     lot of space.
+ * </p>
+ * <p>
+ *     If the caller does not expect this message to be run on the primary
+ *     Jenkins server, it may be worth appending {@link slack#nodeDescription}
+ *     to the return value.
  * </p>
  *
  * @return a newline-separated string, ready for posting to Slack
@@ -506,13 +597,32 @@ def slackHeader() {
 	def slackHeader = "${jobName} - #${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)\n"
 	def currentCommitLink = getCurrentCommitLink()
 	if (isPR()) {
-        slackHeader += "Branch _*${env.CHANGE_BRANCH}*_ ${currentCommitLink}\n"
+		slackHeader += "Branch _*${env.CHANGE_BRANCH}*_ ${currentCommitLink}\n"
 		slackHeader += PRMessage()
 	} else {
 		slackHeader += "Branch _*${env.BRANCH_NAME}*_ ${currentCommitLink}\n"
 	}
-	slackHeader += "Built with _*${env.NODE_NAME}*_\n"
 	return slackHeader
+}
+
+/**
+ * Internal method to create a short textual summary of the current Jenkins Node.
+ * <p>
+ *     A build may take place over the course of multiple different nodes. This
+ *     will only return information about the current one.
+ * </p>
+ * <p>
+ *     If the caller expects this message to be run on the primary Jenkins
+ *     server, it is best to avoid this.
+ * </p>
+ *
+ * @return a short newline-terminated string, ready for posting to Slack
+ * @see slack#getTestSummary
+ * @see slack#PRMessage
+ * @see slack#echo
+ */
+String nodeDescription() {
+	return "Built with _*${env.NODE_NAME}*_\n"
 }
 
 /**
@@ -533,109 +643,174 @@ def slackHeader() {
  * @return nothing
  */
 def sendSlackError(Exception e, String message) {
-    def errorMessage = e.toString()
-    if (!(e instanceof InterruptedException) && env.SLACK_CHANNEL_NOTIFIED != "true" && !errorMessage.contains("Queue task was cancelled")) {
-        env.SLACK_CHANNEL_NOTIFIED = "true"
-        def logs = currentBuild.rawBuild.getLog(200).reverse()
-        def logsToPrint = []
-        def addToLogs = true
-        for(String logString : logs) {
-            if (logString.contains("from /Users")) { //iOS Ruby Exceptions
-            } else if (logString.contains("/lib/rails/") || logString.contains("/.rvm/gems/ruby")) { //iOS Ruby Exceptions
-            } else if(logString.contains("fastlane finished with errors")) {
-                if (logsToPrint.size() > 0) {
-                    addToLogs = false    
-                }
-            } else if(logString.contains("[Pipeline]")) { //Jenkins Pipeline Info
-                if (logsToPrint.size() > 0) {
-                    addToLogs = false    
-                }
-            } else if (logString.contains("at ") && (logString.contains(".java") || logString.contains(".kt") || logString.contains(".groovy"))) { //Gradle Exceptions
-            } else if (logString.contains("FAILURE: Build failed with an exception")) {
-                if (logsToPrint.size() > 0) {
-                    addToLogs = false    
-                }
-            } else {
-                if (addToLogs) {
-                    logsToPrint.add(logString)
-                }
-            }
-        } 
-        logsToPrint = logsToPrint.reverse()
-        logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
-        slackSend color: 'danger', channel: slackChannel, message:slackHeader() + message
-        slackSend color: 'danger', channel: slackChannel, message:"```${logsString}```"
+	def errorMessage = e.toString()
+	if (!(e instanceof InterruptedException) && env.SLACK_CHANNEL_NOTIFIED != "true" && !errorMessage.contains("Queue task was cancelled")) {
+		env.SLACK_CHANNEL_NOTIFIED = "true"
 
-        if (!errorMessage.contains("script returned exit code 1")) {
-           slackSend color: 'danger', channel: "jenkins_notifications", message:slackHeader() + "${e}" 
-	   slackSend color: 'danger', channel: "jenkins_notifications", message:e.printStackTrace()  
-        }
-    }
+		// 1. Start with the last 200 lines.
+		def logs = currentBuild.rawBuild.getLog(200).reverse()
+		def logsToPrint = []
+		def addToLogs = true
+		for(String logString : logs) {
+			// Collate only logs that we care about.
+			if (logString.contains("from /Users")) {
+				// In the middle of a Ruby Exception. Skip this line.
+			} else if (logString.contains("/lib/rails/") || logString.contains("/.rvm/gems/ruby")) {
+				// In the middle of a Ruby Info Message. Skip this line.
+			} else if(logString.contains("fastlane finished with errors")) {
+				// Terminator for iOS fastlane errors. If we have a message, ignore all following lines.
+				if (logsToPrint.size() > 0) {
+					addToLogs = false
+				}
+			} else if(logString.contains("[Pipeline]")) {
+				// Terminator for Jenkins Pipeline Info. If we have a message, ignore all following lines.
+				if (logsToPrint.size() > 0) {
+					addToLogs = false
+				}
+			} else if (logString.contains("at ") && (logString.contains(".java") || logString.contains(".kt") || logString.contains(".groovy"))) {
+				// In the middle of a JVM Exception. Skip this line.
+			} else if (logString.contains("FAILURE: Build failed with an exception")) {
+				// Terminator for JVM Exception. If we have a message, ignore all following lines.
+				if (logsToPrint.size() > 0) {
+					addToLogs = false
+				}
+			} else {
+				// Add this line to the array.
+				if (addToLogs) {
+					logsToPrint.add(logString)
+				}
+			}
+		}
+		logsToPrint = logsToPrint.reverse()
+		logsString = logsToPrint.subList(Math.max(logsToPrint.size() - 20, 0), logsToPrint.size()).join("\n")
+
+		// 2. Send the logs to Slack.
+		ensureThreadAnchor()
+
+		// Attach a warning emoji to the thread anchor
+		slackExtras.threadAnchor.addReaction("warning")
+
+		// Local variable representing the response from Slack's API.
+		//noinspection GroovyUnusedAssignment
+		def slackResponse = null
+
+		echo "About to send header to the existing thread..."
+		slackResponse = slackSend color: 'danger', channel: slackThread, message: nodeDescription() + message
+		echo "...and now trying to add details to that."
+		slackSend color: 'danger', channel: slackThread, message:"```${logsString}```"
+
+		if (!errorMessage.contains("script returned exit code 1")) {
+			// Attach a no_entry_sign emoji to the existing message...
+			echo "Attaching a response to the header message..."
+			slackResponse.addReaction("no_entry_sign")
+			// ...and send a stacktrace to the DevOps monitoring channel
+			echo "...and making two additional notes elsewhere."
+			String fullMessage = slackHeader() + nodeDescription() + "${e}"
+
+			slackResponse = slackSend color: 'danger', channel: "jenkins_notifications", message: fullMessage
+			slackSend color: 'danger', channel: slackResponse.threadId, message: e.printStackTrace()
+		}
+	}
 }
 
 def sendMessageWithLogs(String message) {
 	def logs = currentBuild.rawBuild.getLog(10).reverse()
-        logsString = logs.reverse().subList(1, logs.size()).join("\n")
-        slackSend color: 'warning', channel: slackChannel, message:message
-        slackSend color: 'warning', channel: slackChannel, message:"```${logsString}```"
+	logsString = logs.reverse().subList(1, logs.size()).join("\n")
+
+	ensureThreadAnchor()
+
+	slackSend color: 'warning', channel: slackThread, message:message
+	slackSend color: 'warning', channel: slackThread, message:"```${logsString}```"
 }
 
 /**
- * Send a 'Build Complete!' Slack message including
+ * Send a list of commit messages to Slack.
+ * <p>
+ *     Above the list we add a simple header with
+ *     <ul>
+ *         <li>{@link slack#jobName Job name}</li>
+ *         <li>Build number</li>
+ *         <li>Link to VCS changelog</li>
+ *     </ul>
+ *     The commits themselves are assembled by {@link slack#getCommitLog}.
+ * </p>
+ *
+ * @see slack#buildMessage
+ * @see slack#linkMessage
+ */
+void sendCommitLogMessage() {
+	def jobName = jobName()
+
+	ensureThreadAnchor()
+
+	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
+	slackSend color: 'good', channel: slackThread, message: commitLogHeader + getCommitLog()
+}
+
+/**
+ * Send up to two 'Build Complete!' Slack messages including
  * <ul>
- *     <li>{@link slack#slackHeader Standard header}</li>
+ *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link slack#getArtifacts List of artifacts on current build}</li>
  *     <li>{@link slack#jobName Job name}</li>
  *     <li>Build number</li>
  *     <li>Link to VCS changelog</li>
  *     <li>{@link slack#getCommitLog List of commit messages}</li>
  * </ul>
+ * <p>
+ *     We delegate the last four of those to {@link slack#sendCommitLogMessage}.
+ * </p>
  *
- * @return a newline-separated string, as described above
+ * @return nothing
  * @see slack#linkMessage
  * @see slack#testMessage
  * @see slack#uatMessage
  */
 def buildMessage() {
-	def jobName = jobName()
-	def slackHeader = slackHeader()
+	def node = nodeDescription()
 	def slackArtifacts = getArtifacts()
-	slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
-	def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
-	slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
+
+	ensureThreadAnchor()
+
+	slackSend color: 'good', channel: slackThread, message: node + slackArtifacts
+	sendCommitLogMessage()
 }
 
 
 /**
- * Send a 'Website Deployed!' Slack message including
+ * Send up to two 'Website Deployed!' Slack messages including
  * <ul>
- *     <li>{@link slack#slackHeader Standard header}</li>
+ *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link publishLink#call Link to the deployment}</li>
  *     <li>{@link slack#jobName Job name}</li>
  *     <li>Build number</li>
  *     <li>Link to VCS changelog</li>
  *     <li>{@link slack#getCommitLog List of commit messages}</li>
  * </ul>
+ * <p>
+ *     We delegate the last four of those to {@link slack#sendCommitLogMessage}.
+ * </p>
  *
  * @param inURL http or https url for the deployed website
- * @return a newline-separated string, as described above
+ * @return nothing
  * @see slack#buildMessage
  * @see slack#testMessage
  * @see slack#uatMessage
  */
 def linkMessage(String inURL) {
-    def jobName = jobName()
-    def slackHeader = slackHeader()
-    def slackArtifacts = "${inURL}\n"
-    slackSend color: 'good', channel: slackChannel, message: slackHeader + slackArtifacts
-    def commitLogHeader = "${jobName} - #${env.BUILD_NUMBER} <${env.BUILD_URL}/changes|Changes>:\n"
-    slackSend color: 'good', channel: slackChannel, message: commitLogHeader + getCommitLog()
+	def header = nodeDescription()
+	def slackArtifacts = "${inURL}\n"
+
+	ensureThreadAnchor()
+
+	slackSend color: 'good', channel: slackThread, message: header + slackArtifacts
+	sendCommitLogMessage()
 }
 
 /**
  * Send a 'Test Suite Complete!' Slack message including
  * <ul>
- *     <li>{@link slack#slackHeader Standard header}</li>
+ *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link slack#getTestSummary Key stats on the test 'health'}</li>
  *     <li>{@link slack#getCoverageSummary Code's test coverage, as a percentage}</li>
  *     <li>{@link slack#getFailedTests List of tests that failed} (if any)</li>
@@ -645,26 +820,29 @@ def linkMessage(String inURL) {
  *     truly without associated tests should not be using {@link testStage}.
  * </p>
  *
- * @return a newline-separated string, as described above
+ * @return nothing
  * @see slack#buildMessage
  * @see slack#linkMessage
  * @see slack#uatMessage
  */
 def testMessage() {
-	def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
+	def header = nodeDescription() + "\n*Stage*: ${env.STAGE_NAME}\n"
 	def failedTest = getFailedTests()
 	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
 	def coverageSummary = "_*Code Coverage*_\n" + getCoverageSummary() + "\n"
 	def slackTestSummary = testSummary + coverageSummary
+
+	ensureThreadAnchor()
+
 	if (failedTest == null) {
 		if (testSummary.contains("No tests found")) {
-			slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary 
+			slackSend color: 'warning', channel: slackThread, message: header + slackTestSummary
 		} else {
-			slackSend color: 'good', channel: slackChannel, message: slackHeader + slackTestSummary 
+			slackSend color: 'good', channel: slackThread, message: header + slackTestSummary
 		}
 	} else {
-		slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
-		slackSend color: 'warning', channel: slackChannel, message: failedTest
+		slackSend color: 'warning', channel: slackThread, message: header + slackTestSummary
+		slackSend color: 'warning', channel: slackThread, message: failedTest
 	}
 }
 
@@ -677,20 +855,20 @@ def testMessage() {
  * @return false if there were test failures, true otherwise
  */
 def isProjectSuccessful() {
-    def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
-    projectSuccessful = true
-    if (testResultAction != null) {
-        if (testResultAction.getFailCount() > 0) {
-            projectSuccessful = false  
-        }
-    }
-    return projectSuccessful;
+	def testResultAction = currentBuild.rawBuild.getAction(TestResultAction.class)
+	projectSuccessful = true
+	if (testResultAction != null) {
+		if (testResultAction.getFailCount() > 0) {
+			projectSuccessful = false
+		}
+	}
+	return projectSuccessful;
 }
 
 /**
  * Send an 'Automation Test Suite Complete!' Slack message including
  * <ul>
- *     <li>{@link slack#slackHeader Standard header}</li>
+ *     <li>{@link slack#nodeDescription Standard node description}</li>
  *     <li>{@link slack#getTestSummary Key stats on the test 'health'}</li>
  *     <li>{@link uatStage#reportExtents A precise visualization of automation test results}</li>
  *     <li>{@link slack#getFailedTests List of tests that failed} (if any)</li>
@@ -707,24 +885,27 @@ def isProjectSuccessful() {
  * @see uatStage#call
  */
 def uatMessage() {
-    def slackHeader = slackHeader() + "\n*Stage*: ${env.STAGE_NAME}\n"
-    def failedTest = getFailedTests()
-    def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
-    def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Report/" + "\n"
-    if (env.TEST_RAIL_ID) {
-        def testRailURL = "https://fuzz.testrail.io/index.php?/runs/overview/${env.TEST_RAIL_ID}" 
-    }
-    def slackTestSummary = testSummary + reportMessage
-    if (failedTest == null) {
-        if (testSummary.contains("No tests found")) {
-            slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary 
-        } else {
-            slackSend color: 'good', channel: slackChannel, message: slackHeader + slackTestSummary 
-        }
-    } else {
-        slackSend color: 'warning', channel: slackChannel, message: slackHeader + slackTestSummary
-        slackSend color: 'warning', channel: slackChannel, message: failedTest
-    }
+	def header = nodeDescription() + "\n*Stage*: ${env.STAGE_NAME}\n"
+	def failedTest = getFailedTests()
+	def testSummary = "_*Test Results*_\n" + getTestSummary() + "\n"
+	def reportMessage = "_*Report*_\n" + env.JOB_URL + "Extent-Report/" + "\n"
+	if (env.TEST_RAIL_ID) {
+		def testRailURL = "https://fuzz.testrail.io/index.php?/runs/overview/${env.TEST_RAIL_ID}"
+	}
+	def slackTestSummary = testSummary + reportMessage
+
+	ensureThreadAnchor()
+
+	if (failedTest == null) {
+		if (testSummary.contains("No tests found")) {
+			slackSend color: 'warning', channel: slackThread, message: header + slackTestSummary
+		} else {
+			slackSend color: 'good', channel: slackThread, message: header + slackTestSummary
+		}
+	} else {
+		slackSend color: 'warning', channel: slackThread, message: header + slackTestSummary
+		slackSend color: 'warning', channel: slackThread, message: failedTest
+	}
 }
 
 /**
@@ -736,8 +917,8 @@ def uatMessage() {
  *
  * @return nothing
  * @see slack#getSlackChannel()
+ * @see slack#ensureThreadAnchor()
  */
 def echo() {
-	def slackHeader = slackHeader()
-	slackSend color: 'good', channel: slackChannel, message: slackHeader
+	ensureThreadAnchor()
 }
