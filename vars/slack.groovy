@@ -115,7 +115,7 @@ void ensureThreadAnchor() {
 			|Please confirm that our branded Jenkins bot is added to the channel called
 			|"#${slackChannel}", and verify that the value of env.SLACK_CHANNEL in your project's
 			|Jenkinsfile is accurate.
-			""".stripIndent('|')
+			""".stripMargin('|')
 		}
 		env.SLACK_THREAD_ID = slackResponse.threadId
 	}
