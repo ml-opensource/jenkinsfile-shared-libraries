@@ -92,7 +92,8 @@ def getSlackThread() {
  * <p>
  *     Otherwise, this sends a very simple 'anchor' message to the
  *     channel and records the 'threadid' associated with that message
- *     in env.SLACK_THREAD_ID.
+ *     in env.SLACK_THREAD_ID. If the 'anchor' message cannot be sent
+ *     for any reason, this will error-out the build.
  * </p>
  *
  * @see slack#getSlackThread()
@@ -106,6 +107,16 @@ void ensureThreadAnchor() {
 		def slackResponse = slackSend color: 'good', channel: slackChannel, message: slackHeader
 		// We keep around the original response to this, so that we can attach emoji.
 		slackExtras.threadAnchor = slackResponse
+		if (slackResponse == null || slackResponse.threadId == null) {
+			// Fail the build. This situation is unacceptable.
+			error """
+			|Jenkins does not seem to be able to add messages to this particular Slack conversation.
+			|
+			|Please confirm that our branded Jenkins bot is added to the channel called
+			|"#${slackChannel}", and verify that the value of env.SLACK_CHANNEL in your project's
+			|Jenkinsfile is accurate.
+			""".stripMargin('|')
+		}
 		env.SLACK_THREAD_ID = slackResponse.threadId
 	}
 }
