@@ -35,16 +35,16 @@ void call() {
  * <p>
  *     Not all projects define an associated channel. In such a
  *     case, this method will return the constant
- *     "jenkins_notifications".
+ *     "jenkins-notifications-amer".
  * </p>
  *
- * @return either env.SLACK_CHANNEL (if present) or "jenkins_notifications"
+ * @return either env.SLACK_CHANNEL (if present) or "jenkins-notifications-amer"
  */
 def getSlackChannel() {
 	if (env.SLACK_CHANNEL) {
 		return env.SLACK_CHANNEL
 	} else {
-		return "jenkins_notifications"
+		return "jenkins-notifications-amer"
 	}
 }
 
@@ -718,7 +718,7 @@ def sendSlackError(Exception e, String message) {
 			echo "...and making two additional notes elsewhere."
 			String fullMessage = slackHeader() + nodeDescription() + "${e}"
 
-			slackResponse = slackSend color: 'danger', channel: "jenkins_notifications", message: fullMessage
+			slackResponse = slackSend color: 'danger', channel: "jenkins-notifications-amer", message: fullMessage
 			slackSend color: 'danger', channel: slackResponse.threadId, message: e.printStackTrace()
 		}
 	}
